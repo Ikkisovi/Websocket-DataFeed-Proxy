@@ -1,0 +1,24 @@
+{
+    "data-queue-handler": [
+        "QuantConnect.AlpacaProxy.AlpacaProxyDataQueueHandler"
+    ],
+    "alpaca-proxy-url": "ws://host.docker.internal:8765",
+    "environments": {
+        "live-alpaca-proxy": {
+            "live-mode": true,
+            "live-mode-brokerage": "AlpacaBrokerage",
+            "data-queue-handler": [
+                "QuantConnect.AlpacaProxy.AlpacaProxyDataQueueHandler"
+            ],
+            "setup-handler": "QuantConnect.Lean.Engine.Setup.BrokerageSetupHandler",
+            "result-handler": "QuantConnect.Lean.Engine.Results.LiveTradingResultHandler",
+            "data-feed-handler": "QuantConnect.Lean.Engine.DataFeeds.LiveTradingDataFeed",
+            "real-time-handler": "QuantConnect.Lean.Engine.RealTime.LiveTradingRealTimeHandler",
+            "transaction-handler": "QuantConnect.Lean.Engine.TransactionHandlers.BrokerageTransactionHandler",
+            "history-provider": [
+                "BrokerageHistoryProvider",
+                "SubscriptionDataReaderHistoryProvider"
+            ]
+        }
+    }
+}

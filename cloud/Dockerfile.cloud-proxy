@@ -1,0 +1,10 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+RUN pip install --no-cache-dir aiohttp websockets msgpack redis uvloop
+
+COPY alpaca_cloud_proxy.py /app/alpaca_cloud_proxy.py
+
+EXPOSE 8765 8766
+
+CMD ["python", "/app/alpaca_cloud_proxy.py"]

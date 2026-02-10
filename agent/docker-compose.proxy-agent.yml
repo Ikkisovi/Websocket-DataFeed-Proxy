@@ -1,0 +1,21 @@
+version: "3.8"
+services:
+  alpaca-proxy-agent:
+    image: ${ALPACA_PROXY_IMAGE:-alpaca-proxy-agent:livefix}
+    container_name: ${ALPACA_PROXY_CONTAINER:-alpaca-proxy-agent}
+    restart: unless-stopped
+    ports:
+      - "${PROXY_PORT:-8765}:8765"
+      - "${PROXY_HTTP_PORT:-8766}:8766"
+    environment:
+      IS_LIVE: ${ALPACA_PROXY_IS_LIVE:-false}
+      IS_PRO: ${ALPACA_PROXY_IS_PRO:-false}
+      MODE: ${ALPACA_PROXY_MODE:-direct}
+      CLOUD_PROXY_URL: ${CLOUD_PROXY_URL}
+      CLOUD_HISTORY_URL: ${CLOUD_HISTORY_URL}
+      ALPACA_PROXY_TOKEN: ${ALPACA_PROXY_TOKEN}
+      ALPACA_API_KEY: ${ALPACA_API_KEY}
+      ALPACA_API_SECRET: ${ALPACA_API_SECRET}
+    volumes:
+      - "${CURSOR_HOST_PATH}:/opt/project/.cursor"
+      - "${PROJECT_ROOT:-.}/proxy/agent/alpaca_proxy_enhanced.py:/opt/project/enhanced.py"

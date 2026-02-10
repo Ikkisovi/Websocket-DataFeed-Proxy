@@ -1,0 +1,14 @@
+FROM camelpac/alpaca-proxy-agent
+
+# Install deps for relay mode and HTTP history endpoint
+RUN pip install --no-cache-dir aiohttp websockets msgpack
+
+# Copy proxy scripts
+COPY alpaca_proxy_enhanced.py /opt/project/enhanced.py
+COPY alpaca_local_relay.py /opt/project/alpaca_local_relay.py
+
+# Expose both WebSocket and HTTP ports
+EXPOSE 8765 8766
+
+# MODE=direct (default) runs enhanced proxy, MODE=relay runs local relay
+ENTRYPOINT ["python", "-c", "import os, runpy; runpy.run_path('/opt/project/alpaca_local_relay.py' if os.getenv('MODE','direct').lower()=='relay' else '/opt/project/enhanced.py', run_name='__main__')"]
