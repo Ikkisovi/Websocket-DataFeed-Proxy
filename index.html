@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+        <html lang="zh-Hans">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <meta name="color-scheme" content="light" />
+          <title>Alpaca Proxy API</title>
+          <style>
+            :root {
+              --bg: #f6f8fb;
+              --surface: #ffffff;
+              --surface-alt: #f8fafc;
+              --border: #d0d7de;
+              --text: #1f2328;
+              --muted: #57606a;
+              --accent: #0969da;
+              --accent-soft: #dbeafe;
+              --success: #1a7f37;
+              --warning: #9a6700;
+            }
+            * {
+              box-sizing: border-box;
+            }
+            html {
+              scroll-behavior: smooth;
+            }
+            body {
+              margin: 0;
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+              background: var(--bg);
+              color: var(--text);
+              line-height: 1.6;
+            }
+            a {
+              color: var(--accent);
+              text-decoration: none;
+            }
+            a:hover {
+              text-decoration: underline;
+            }
+            .page {
+              max-width: 1240px;
+              margin: 0 auto;
+              padding: 24px 18px 48px;
+            }
+            .site-header {
+              display: grid;
+              gap: 14px;
+              padding: 20px;
+              margin-bottom: 18px;
+              border: 1px solid var(--border);
+              border-radius: 8px;
+              background: var(--surface);
+            }
+            .eyebrow {
+              margin: 0;
+              color: var(--muted);
+              font-size: 0.82rem;
+              text-transform: uppercase;
+              letter-spacing: 0;
+            }
+            .site-header h1 {
+              margin: 0;
+              font-size: 1.65rem;
+              line-height: 1.2;
+            }
+            .site-header p {
+              margin: 0;
+              color: var(--muted);
+            }
+            .site-nav {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 10px;
+            }
+            .site-nav a {
+              display: inline-flex;
+              align-items: center;
+              min-height: 34px;
+              padding: 0 12px;
+              border: 1px solid var(--border);
+              border-radius: 8px;
+              background: var(--surface-alt);
+              color: var(--text);
+            }
+            .site-nav a:hover {
+              border-color: var(--accent);
+              text-decoration: none;
+            }
+            .lookup-panel {
+              margin: 18px 0 24px;
+              padding: 18px;
+              border: 1px solid var(--border);
+              border-radius: 8px;
+              background: var(--surface);
+            }
+            .panel-header {
+              display: flex;
+              flex-wrap: wrap;
+              justify-content: space-between;
+              gap: 12px;
+              margin-bottom: 14px;
+            }
+            .panel-header h2 {
+              margin: 4px 0 0;
+              font-size: 1.18rem;
+            }
+            .panel-note {
+              max-width: 600px;
+              margin: 0;
+              color: var(--muted);
+            }
+            .lookup-form {
+              display: grid;
+              grid-template-columns: minmax(0, 1fr) auto;
+              gap: 12px;
+              align-items: end;
+            }
+            .field {
+              display: grid;
+              gap: 6px;
+            }
+            .field span {
+              font-size: 0.88rem;
+              color: var(--muted);
+            }
+            .field input {
+              width: 100%;
+              min-width: 280px;
+              height: 40px;
+              padding: 0 12px;
+              border: 1px solid var(--border);
+              border-radius: 8px;
+              background: #fff;
+              color: var(--text);
+            }
+            .actions {
+              grid-auto-flow: column;
+              justify-content: start;
+              gap: 8px;
+            }
+            button {
+              height: 40px;
+              padding: 0 14px;
+              border: 1px solid var(--border);
+              border-radius: 8px;
+              background: var(--surface-alt);
+              color: var(--text);
+              cursor: pointer;
+            }
+            button:hover:not(:disabled) {
+              border-color: var(--accent);
+            }
+            button:disabled {
+              cursor: not-allowed;
+              opacity: 0.55;
+            }
+            .lookup-status {
+              margin: 10px 0 8px;
+              color: var(--muted);
+            }
+            .lookup-result {
+              margin: 0;
+              padding: 14px;
+              min-height: 120px;
+              border: 1px solid var(--border);
+              border-radius: 8px;
+              background: #0f172a;
+              color: #e2e8f0;
+              overflow-x: auto;
+              white-space: pre-wrap;
+              word-break: break-word;
+            }
+            .doc-shell {
+              padding: 20px;
+              border: 1px solid var(--border);
+              border-radius: 8px;
+              background: var(--surface);
+            }
+            .doc-shell h1,
+            .doc-shell h2,
+            .doc-shell h3,
+            .doc-shell h4 {
+              line-height: 1.25;
+            }
+            .doc-shell h1 {
+              margin-top: 0;
+            }
+            .doc-shell p {
+              margin: 0.6rem 0;
+            }
+            .doc-shell ul,
+            .doc-shell ol {
+              padding-left: 1.35rem;
+            }
+            .doc-shell code {
+              font-family: Consolas, 'SFMono-Regular', monospace;
+              font-size: 0.92em;
+            }
+            .doc-shell pre {
+              overflow-x: auto;
+              padding: 14px;
+              border-radius: 8px;
+              border: 1px solid var(--border);
+              background: #0f172a;
+              color: #e2e8f0;
+            }
+            .doc-shell pre code {
+              color: inherit;
+            }
+            .doc-shell table {
+              width: 100%;
+              border-collapse: collapse;
+              overflow: hidden;
+              border-radius: 8px;
+            }
+            .doc-shell th,
+            .doc-shell td {
+              padding: 8px 10px;
+              border: 1px solid var(--border);
+              text-align: left;
+              vertical-align: top;
+            }
+            .doc-shell th {
+              background: #f1f5f9;
+            }
+            .doc-shell blockquote {
+              margin: 1rem 0;
+              padding: 0.2rem 0 0.2rem 1rem;
+              border-left: 4px solid var(--accent-soft);
+              color: var(--muted);
+            }
+            .doc-shell hr {
+              border: 0;
+              border-top: 1px solid var(--border);
+              margin: 1.5rem 0;
+            }
+            .doc-shell img {
+              max-width: 100%;
+              height: auto;
+            }
+            .doc-shell .footnote {
+              color: var(--muted);
+              font-size: 0.9rem;
+            }
+            .doc-shell details {
+              margin: 1rem 0;
+            }
+            .doc-shell summary {
+              cursor: pointer;
+            }
+            @media (max-width: 760px) {
+              .page {
+                padding: 16px 12px 32px;
+              }
+              .lookup-form {
+                grid-template-columns: 1fr;
+              }
+              .actions {
+                grid-auto-flow: row;
+              }
+              .field input {
+                min-width: 0;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="page">
+            <header class="site-header">
+              <div>
+                <p class="eyebrow">Public Docs Site</p>
+                <h1>Alpaca Proxy API</h1>
+                <p>Rendered from the repository markdown sources and published as a static GitHub Pages site.</p>
+              </div>
+              <nav class="site-nav" aria-label="Site navigation">
+  <a href="./">Proxy API</a>
+  <a href="./cloud-ws-usage.html">WS usage</a>
+  <a href="./reports/">Reports</a>
+</nav>
+            </header>
+            <section class="lookup-panel" aria-labelledby="lookup-title">
+  <div class="panel-header">
+    <div>
+      <p class="eyebrow">Internal lookup</p>
+      <h2 id="lookup-title">WeChat token lookup</h2>
+    </div>
+    <p class="panel-note">
+      The lookup section is visible in the public docs site.
+      The button is active only in the private admin deployment that can reach the token lookup API.
+    </p>
+  </div>
+  <form id="lookup-form" class="lookup-form">
+    <label class="field">
+      <span>WeChat ID</span>
+      <input id="wechat-id" name="wechat_id" type="text" autocomplete="off" placeholder="wxid..." />
+    </label>
+    <div class="field actions">
+      <button id="lookup-submit" type="submit">Lookup / assign token</button>
+      <button id="lookup-copy" type="button" disabled>Copy token</button>
+    </div>
+  </form>
+  <p id="lookup-status" class="lookup-status">Enter a WeChat ID to resolve or create a token.</p>
+  <pre id="lookup-result" class="lookup-result" aria-live="polite">{}</pre>
+</section>
+            <article class="doc-shell">
+              <h1>EC2 Alpaca 代理 API 接口文档</h1>
+<p>更新时间: 2026-04-12</p>
+<p>本文档描述当前部署在 EC2 主机 <code>35.88.155.223</code> 上的 Alpaca 行情数据代理服务（market-data proxy）。
+内容基于当前源码、EC2 重建后的容器行为，以及最近完成的 unit / live smoke tests。</p>
+<h2>1. 部署摘要</h2>
+<ul>
+<li>Host: <code>35.88.155.223</code></li>
+<li>WebSocket 端口: <code>8767</code></li>
+<li>HTTP 端口: <code>8768</code></li>
+<li>当前部署模式: <code>IS_LIVE=false</code>，<code>IS_PRO=true</code></li>
+<li>期权默认数据源: <code>ALPACA_OPTIONS_FEED=opra</code></li>
+<li>用户注册表: <code>PROXY_USERS_PATH=/app/users.json</code></li>
+</ul>
+<p>实际业务含义:</p>
+<ul>
+<li>股票数据走 Alpaca 的 <code>v2/sip</code></li>
+<li>期权数据走 Alpaca 的 <code>v1beta1/opra</code></li>
+<li><code>boats</code> 和 <code>overnight</code> 不是 <code>stream</code> 的别名，而是独立 WS 路由</li>
+<li>Crypto 已切到 <code>v1beta3/crypto/us</code></li>
+</ul>
+<h2>2. 鉴权模型</h2>
+<h3>2.1 WebSocket</h3>
+<p>所有 WS 连接都采用先连接、后鉴权。</p>
+<p>请求示例:</p>
+<pre><code class="language-json">{&quot;action&quot;:&quot;auth&quot;,&quot;token&quot;:&quot;your-token&quot;}
+</code></pre>
+<p>当前部署使用 <code>users.json</code> 作为 token 注册表。只要 token 在注册表里，就可以通过鉴权。</p>
+<h3>2.2 HTTP</h3>
+<p>HTTP 请求支持两种 token 传递方式:</p>
+<ul>
+<li>JSON body 中的 <code>token</code></li>
+<li><code>Authorization: Bearer &lt;token&gt;</code></li>
+</ul>
+<h3>2.3 帧编码</h3>
+<p>当前 EC2 上的编码行为是按模式区分的:</p>
+<ul>
+<li><code>/stream</code>、<code>/stream/options</code>、<code>/stream/test</code>、<code>/stream/boats</code>、<code>/stream/overnight</code></li>
+<li>鉴权回复: MsgPack 二进制帧</li>
+<li>订阅确认: MsgPack 二进制帧</li>
+<li>行情数据: MsgPack 二进制帧</li>
+<li><code>/stream/crypto</code></li>
+<li>鉴权回复: JSON 文本帧</li>
+<li>订阅确认: JSON 文本帧</li>
+<li>行情数据: JSON 文本帧</li>
+</ul>
+<p>客户端需要同时具备 MsgPack 和 JSON 的解码能力。</p>
+<h2>3. WebSocket API</h2>
+<h3>3.1 股票流 <code>GET ws://35.88.155.223:8767/stream</code></h3>
+<p>上游数据源: Alpaca <code>v2/sip</code></p>
+<p>支持的订阅键:</p>
+<ul>
+<li><code>trades</code></li>
+<li><code>quotes</code></li>
+</ul>
+<p>请求示例:</p>
+<pre><code class="language-json">{&quot;action&quot;:&quot;subscribe&quot;,&quot;trades&quot;:[&quot;AAPL&quot;],&quot;quotes&quot;:[&quot;AAPL&quot;]}
+</code></pre>
+<p>支持情况:</p>
+<ul>
+<li>支持股票逐笔交易</li>
+<li>支持股票顶层报价</li>
+<li>不支持 WS bars / daily bars / LULD</li>
+<li>不支持 <code>*</code> 通配符</li>
+<li>不接受带 <code>.</code> 的股票代码，例如 <code>BRK.B</code></li>
+</ul>
+<p>订阅确认示例（MsgPack 解码后）:</p>
+<pre><code class="language-json">[{
+  &quot;T&quot;: &quot;subscription&quot;,
+  &quot;trades&quot;: [&quot;AAPL&quot;],
+  &quot;quotes&quot;: [&quot;AAPL&quot;],
+  &quot;invalid_trades&quot;: [],
+  &quot;invalid_quotes&quot;: []
+}]
+</code></pre>
+<h3>3.2 期权流 <code>GET ws://35.88.155.223:8767/stream/options</code></h3>
+<p>上游数据源: Alpaca <code>v1beta1/opra</code></p>
+<p>支持的订阅键:</p>
+<ul>
+<li><code>trades</code></li>
+<li><code>quotes</code></li>
+</ul>
+<p>请求示例:</p>
+<pre><code class="language-json">{&quot;action&quot;:&quot;subscribe&quot;,&quot;trades&quot;:[&quot;AAPL260417C00110000&quot;],&quot;quotes&quot;:[&quot;AAPL260417C00110000&quot;]}
+</code></pre>
+<p>支持情况:</p>
+<ul>
+<li>支持期权逐笔交易</li>
+<li>支持期权顶层报价</li>
+<li>不支持 WS bars / depth</li>
+<li>不接受 <code>*</code> 订阅</li>
+<li>期权 symbol 必须是非空字母数字字符串</li>
+</ul>
+<p>订阅确认和行情数据都走 MsgPack 二进制帧。</p>
+<h3>3.3 测试流 <code>GET ws://35.88.155.223:8767/stream/test</code></h3>
+<p>上游数据源: Alpaca <code>v2/test</code></p>
+<p>行为与股票流一致:</p>
+<ul>
+<li>支持 <code>trades</code> / <code>quotes</code></li>
+<li>使用股票式 symbol 校验</li>
+<li>独立 upstream，不回退到 <code>/stream</code></li>
+</ul>
+<p>这个路由主要用于验证代理路径解析和 upstream 切换逻辑。</p>
+<h3>3.4 Boats 流 <code>GET ws://35.88.155.223:8767/stream/boats</code></h3>
+<p>上游数据源: Alpaca <code>v1beta1/boats</code></p>
+<p>这是当前升级里补上的独立 stock-like mode，不再回退成 <code>/stream</code>。</p>
+<p>行为与股票流一致:</p>
+<ul>
+<li>支持 <code>trades</code> / <code>quotes</code></li>
+<li>订阅确认是 MsgPack</li>
+<li>路由和 upstream 独立</li>
+</ul>
+<h3>3.5 Overnight 流 <code>GET ws://35.88.155.223:8767/stream/overnight</code></h3>
+<p>上游数据源: Alpaca <code>v1beta1/overnight</code> 免费tier的接口，也保留了</p>
+<p>这是当前升级里补上的独立 stock-like mode，不再回退成 <code>/stream</code>。</p>
+<p>行为与股票流一致:</p>
+<ul>
+<li>支持 <code>trades</code> / <code>quotes</code></li>
+<li>订阅确认是 MsgPack</li>
+<li>路由和 upstream 独立</li>
+</ul>
+<h3>3.6 Crypto 流 <code>GET ws://35.88.155.223:8767/stream/crypto</code></h3>
+<p>上游数据源: Alpaca <code>v1beta3/crypto/us</code></p>
+<p>支持的订阅键:</p>
+<ul>
+<li><code>orderbooks</code></li>
+<li><code>trades</code></li>
+</ul>
+<p>请求示例:</p>
+<pre><code class="language-json">{&quot;action&quot;:&quot;subscribe&quot;,&quot;orderbooks&quot;:[&quot;BTC/USD&quot;],&quot;trades&quot;:[&quot;BTC/USD&quot;]}
+</code></pre>
+<p>当前实现覆盖:</p>
+<ul>
+<li>Crypto latest order books</li>
+<li>Crypto trades</li>
+</ul>
+<p>当前实现不覆盖:</p>
+<ul>
+<li>Crypto quotes</li>
+</ul>
+<p>symbol 规范:</p>
+<ul>
+<li><code>BASE/QUOTE</code> 形式</li>
+<li>大小写会被标准化</li>
+<li>非法 symbol 会被拒绝</li>
+</ul>
+<p>订阅确认示例:</p>
+<pre><code class="language-json">[
+  {
+    &quot;T&quot;: &quot;subscription&quot;,
+    &quot;orderbooks&quot;: [&quot;BTC/USD&quot;],
+    &quot;trades&quot;: [&quot;BTC/USD&quot;],
+    &quot;invalid_orderbooks&quot;: [],
+    &quot;invalid_trades&quot;: []
+  }
+]
+</code></pre>
+<h2>4. HTTP API</h2>
+<h3>4.1 健康检查</h3>
+<p><code>GET http://35.88.155.223:8768/health</code></p>
+<p>响应:</p>
+<pre><code class="language-text">OK
+</code></pre>
+<h3>4.2 股票历史 K 线</h3>
+<p><code>POST http://35.88.155.223:8768/v1/history/bars</code></p>
+<p>请求示例:</p>
+<pre><code class="language-json">{
+  &quot;token&quot;: &quot;your-token&quot;,
+  &quot;symbol&quot;: &quot;AAPL&quot;,
+  &quot;start&quot;: &quot;2026-03-24&quot;,
+  &quot;end&quot;: &quot;2026-03-27&quot;,
+  &quot;timeframe&quot;: &quot;1Min&quot;,
+  &quot;feed&quot;: &quot;sip&quot;,
+  &quot;limit&quot;: 50,
+  &quot;max_pages&quot;: 1
+}
+</code></pre>
+<p>说明:</p>
+<ul>
+<li>仅支持单个股票 symbol</li>
+<li><code>limit</code> 会被裁剪到 <code>1..10000</code></li>
+<li>自动处理分页，直到没有 <code>next_page_token</code> 或达到 <code>max_pages</code></li>
+<li>当前部署默认使用 <code>sip</code></li>
+<li>上游请求硬编码 <code>adjustment=all</code></li>
+</ul>
+<h3>4.3 期权历史 K 线</h3>
+<p><code>POST http://35.88.155.223:8768/v1/history/options/bars</code></p>
+<p>请求示例:</p>
+<pre><code class="language-json">{
+  &quot;token&quot;: &quot;your-token&quot;,
+  &quot;symbols&quot;: &quot;AAPL260417C00110000,AAPL260417P00110000&quot;,
+  &quot;start&quot;: &quot;2026-03-24&quot;,
+  &quot;end&quot;: &quot;2026-03-27&quot;,
+  &quot;timeframe&quot;: &quot;1Min&quot;,
+  &quot;feed&quot;: &quot;opra&quot;,
+  &quot;limit&quot;: 1000,
+  &quot;max_pages&quot;: 1
+}
+</code></pre>
+<p>说明:</p>
+<ul>
+<li>接受 <code>symbol</code> 或 <code>symbols</code></li>
+<li><code>symbol</code> 会自动提升为复数形态</li>
+<li>分页逻辑与股票历史 K 线一致</li>
+<li>当前部署默认期权数据源为 <code>opra</code></li>
+</ul>
+<h3>4.4 期权合约发现</h3>
+<p><code>POST http://35.88.155.223:8768/v1/options/contracts</code></p>
+<p>这是新增的 REST 发现接口，主要用于 smoke test 和合约筛选。</p>
+<p>请求示例:</p>
+<pre><code class="language-json">{
+  &quot;token&quot;: &quot;your-token&quot;,
+  &quot;underlying_symbols&quot;: &quot;NVDA&quot;,
+  &quot;expiration_date_gte&quot;: &quot;2026-04-12&quot;,
+  &quot;limit&quot;: 1000
+}
+</code></pre>
+<p>支持字段:</p>
+<ul>
+<li><code>underlying_symbols</code></li>
+<li><code>underlying</code></li>
+<li><code>symbol_or_id</code></li>
+<li><code>symbol</code></li>
+<li><code>expiration_date</code></li>
+<li><code>expiration_date_gte</code></li>
+<li><code>expiration_date_lte</code></li>
+<li><code>strike_price_gte</code></li>
+<li><code>strike_price_lte</code></li>
+<li><code>type</code> / <code>option_type</code></li>
+<li><code>limit</code></li>
+</ul>
+<h3>4.5 期权快照</h3>
+<p><code>POST http://35.88.155.223:8768/v1/options/snapshots</code></p>
+<p>这是新增的 REST 发现接口，用于按合约 symbol 批量取快照。</p>
+<p>请求示例:</p>
+<pre><code class="language-json">{
+  &quot;token&quot;: &quot;your-token&quot;,
+  &quot;symbols&quot;: [&quot;NVDA260413C00190000&quot;],
+  &quot;feed&quot;: &quot;opra&quot;,
+  &quot;limit&quot;: 100
+}
+</code></pre>
+<h3>4.6 按到期日获取期权快照</h3>
+<p><code>POST http://35.88.155.223:8768/v1/options/snapshots/expiry</code></p>
+<p>这是代理特有的便利端点，先拉合约，再批量拉快照。</p>
+<p>请求示例:</p>
+<pre><code class="language-json">{
+  &quot;token&quot;: &quot;your-token&quot;,
+  &quot;underlying&quot;: &quot;NVDA&quot;,
+  &quot;expiry&quot;: &quot;2026-04-17&quot;,
+  &quot;feed&quot;: &quot;opra&quot;
+}
+</code></pre>
+<p>典型返回:</p>
+<pre><code class="language-json">{
+  &quot;contracts&quot;: [
+    {&quot;symbol&quot;: &quot;NVDA260417C00190000&quot;}
+  ],
+  &quot;snapshots&quot;: {
+    &quot;NVDA260417C00190000&quot;: {
+      &quot;latestQuote&quot;: {},
+      &quot;latestTrade&quot;: {},
+      &quot;dailyBar&quot;: {},
+      &quot;minuteBar&quot;: {},
+      &quot;prevDailyBar&quot;: {}
+    }
+  },
+  &quot;count&quot;: 140
+}
+</code></pre>
+<h3>4.7 Crypto 最新订单簿</h3>
+<p><code>POST http://35.88.155.223:8768/v1/crypto/us/latest/orderbooks</code></p>
+<p>这是新增的 REST 发现接口，用于 crypto 订单簿 smoke / 工具链调用。</p>
+<p>请求示例:</p>
+<pre><code class="language-json">{
+  &quot;token&quot;: &quot;your-token&quot;,
+  &quot;symbols&quot;: [&quot;BTC/USD&quot;, &quot;ETH/USD&quot;]
+}
+</code></pre>
+<p>当前代理只暴露 crypto 最新 order book，不额外伪造 crypto quote REST。</p>
+<h2>5. 数据覆盖度总结</h2>
+<table>
+<thead>
+<tr>
+<th>功能领域</th>
+<th>当前 EC2 是否支持</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>股票 WS trades</td>
+<td>✅</td>
+<td><code>/stream</code></td>
+</tr>
+<tr>
+<td>股票 WS quotes</td>
+<td>✅</td>
+<td><code>/stream</code></td>
+</tr>
+<tr>
+<td>股票 WS bars</td>
+<td>❌</td>
+<td>未暴露</td>
+</tr>
+<tr>
+<td>股票 WS daily bars</td>
+<td>❌</td>
+<td>未暴露</td>
+</tr>
+<tr>
+<td>股票 WS LULD</td>
+<td>❌</td>
+<td>未暴露</td>
+</tr>
+<tr>
+<td>测试 WS</td>
+<td>✅</td>
+<td><code>/stream/test</code></td>
+</tr>
+<tr>
+<td>Boats WS trades / quotes</td>
+<td>✅</td>
+<td><code>/stream/boats</code></td>
+</tr>
+<tr>
+<td>Overnight WS trades / quotes</td>
+<td>✅</td>
+<td><code>/stream/overnight</code></td>
+</tr>
+<tr>
+<td>期权 WS trades</td>
+<td>✅</td>
+<td><code>/stream/options</code></td>
+</tr>
+<tr>
+<td>期权 WS quotes</td>
+<td>✅</td>
+<td><code>/stream/options</code></td>
+</tr>
+<tr>
+<td>期权 WS bars</td>
+<td>❌</td>
+<td>未暴露</td>
+</tr>
+<tr>
+<td>Crypto WS orderbooks</td>
+<td>✅</td>
+<td><code>/stream/crypto</code></td>
+</tr>
+<tr>
+<td>Crypto WS trades</td>
+<td>✅</td>
+<td><code>/stream/crypto</code></td>
+</tr>
+<tr>
+<td>Crypto WS quotes</td>
+<td>❌</td>
+<td>当前 proxy 不提供</td>
+</tr>
+<tr>
+<td>股票历史 K 线 REST</td>
+<td>✅</td>
+<td><code>/v1/history/bars</code></td>
+</tr>
+<tr>
+<td>期权历史 K 线 REST</td>
+<td>✅</td>
+<td><code>/v1/history/options/bars</code></td>
+</tr>
+<tr>
+<td>期权合约 REST</td>
+<td>✅</td>
+<td><code>/v1/options/contracts</code></td>
+</tr>
+<tr>
+<td>期权快照 REST</td>
+<td>✅</td>
+<td><code>/v1/options/snapshots</code></td>
+</tr>
+<tr>
+<td>按到期日聚合快照</td>
+<td>✅</td>
+<td><code>/v1/options/snapshots/expiry</code></td>
+</tr>
+<tr>
+<td>Crypto 最新 orderbooks REST</td>
+<td>✅</td>
+<td><code>/v1/crypto/us/latest/orderbooks</code></td>
+</tr>
+<tr>
+<td>REST quote 透传</td>
+<td>❌</td>
+<td>quote 仍走 WS</td>
+</tr>
+</tbody>
+</table>
+<h2>6. 验证与测试</h2>
+<p>当前接口状态已经通过以下测试覆盖:</p>
+<ul>
+<li><code>proxy/tests/test_cloud_proxy_stock_like_modes.py</code></li>
+<li>验证 <code>/stream/boats</code> 和 <code>/stream/overnight</code> 的独立路由</li>
+<li>验证 auth / subscribe ack 不回退到 stock</li>
+<li><code>proxy/tests/test_cloud_proxy_crypto.py</code></li>
+<li>验证 crypto 路由、orderbooks / trades 过滤和路径接受</li>
+<li><code>proxy/tests/test_cloud_proxy_http_usage.py</code></li>
+<li>验证新增 REST 发现接口与 usage logging</li>
+<li><code>tests/test_proxy_docs_site.py</code></li>
+<li>验证文档站点生成器会渲染公共站点首页、markdown 正文和 reports 目录</li>
+<li><code>proxy/tests/test_live_nvda_smoke.py</code></li>
+<li>验证 NVDA underlying quote 通路</li>
+<li>验证通过 REST 发现一个真实 NVDA 期权合约</li>
+<li>验证 NVDA 期权合约的 quote / trade 通路</li>
+<li><code>proxy/tests/test_live_all_feeds.py</code></li>
+<li>汇总股票、期权和 NVDA smoke 的 live 检查</li>
+</ul>
+<p>最近一次 live 验证结果:</p>
+<ul>
+<li>EC2 容器已重建并启动</li>
+<li><code>GET /health</code> 返回 <code>OK</code></li>
+<li><code>NVDA</code> smoke 已通过</li>
+<li><code>boats</code> / <code>overnight</code> 路由已可鉴权并订阅</li>
+</ul>
+<h2>7. 重要注意事项</h2>
+<ul>
+<li>这不是 Alpaca 全量镜像，只暴露当前代理已经实现并测试过的接口</li>
+<li>股票 symbol 不接受 <code>.</code></li>
+<li>期权 symbol 只接受字母数字</li>
+<li><code>*</code> 通配符不支持，尤其是期权 quotes</li>
+<li>股票 / 期权 / boats / overnight 使用 MsgPack，crypto 使用 JSON</li>
+<li><code>quotes</code> 这次是升级范围内的能力，已经在 stock / options / boats / overnight 的 live smoke 中验证</li>
+<li>目前没有 REST 形式的 quote 透传接口，quote 仍然通过 WS 获取</li>
+</ul>
+<h2>8. 参考文档</h2>
+<ul>
+<li><a href="./cloud-ws-usage.md">cloud-ws-usage.md</a></li>
+<li>Alpaca Market Data overview: https://docs.alpaca.markets/docs/about-market-data-api</li>
+<li>Alpaca real-time stock pricing data: https://docs.alpaca.markets/docs/real-time-stock-pricing-data</li>
+<li>Alpaca historical stock data: https://docs.alpaca.markets/v1.3/docs/historical-stock-data-1</li>
+<li>Alpaca real-time option data: https://docs.alpaca.markets/docs/real-time-option-data</li>
+<li>Alpaca historical option data: https://docs.alpaca.markets/docs/historical-option-data</li>
+<li>Alpaca options snapshots: https://docs.alpaca.markets/v1.3/reference/optionsnapshots</li>
+</ul>
+<h2>9. Public Docs Site</h2>
+<p>This markdown is rendered into the repository's GitHub Pages site. The public site is docs-only.</p>
+<p>The page can also show an internal token lookup section for WeChat IDs, but the lookup action depends on the private admin API:</p>
+<pre><code class="language-json">POST /v1/admin/token/lookup
+{
+  &quot;wechat_id&quot;: &quot;wxid_example&quot;,
+  &quot;create_missing&quot;: true
+}
+</code></pre>
+<p>Behavior:</p>
+<ul>
+<li>If the WeChat ID already exists in the file-backed registry, the endpoint returns the existing token.</li>
+<li>If the WeChat ID does not exist and the registry is file-backed, the endpoint creates a new token, stores it in the same registry, and returns it.</li>
+<li>The lookup API is internal-only.</li>
+<li>On the public GitHub Pages site, the lookup UI is visible but not active unless the browser can reach the private admin API.</li>
+</ul>
+            </article>
+          </div>
+          <script>
+(() => {
+  const lookupForm = document.getElementById('lookup-form');
+  const statusEl = document.getElementById('lookup-status');
+  const resultEl = document.getElementById('lookup-result');
+  const submitButton = document.getElementById('lookup-submit');
+  const copyButton = document.getElementById('lookup-copy');
+  const wechatInput = document.getElementById('wechat-id');
+  const internalHosts = new Set(['35.88.155.223', 'localhost', '127.0.0.1']);
+  const lookupEnabled = internalHosts.has(window.location.hostname) || window.location.port === '8768';
+  const apiPath = '/v1/admin/token/lookup';
+  let latestToken = '';
+
+  function renderResult(payload) {
+    resultEl.textContent = JSON.stringify(payload, null, 2);
+    latestToken = payload && payload.token ? String(payload.token) : '';
+    copyButton.disabled = !latestToken;
+  }
+
+  if (!lookupEnabled) {
+    submitButton.disabled = true;
+    wechatInput.disabled = true;
+    statusEl.textContent = 'Token lookup is disabled on this host. Open the private admin deployment to resolve tokens.';
+    renderResult({ available: false, host: window.location.hostname });
+    return;
+  }
+
+  lookupForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const wechatId = wechatInput.value.trim();
+    if (!wechatId) {
+      statusEl.textContent = 'WeChat ID is required.';
+      return;
+    }
+
+    submitButton.disabled = true;
+    statusEl.textContent = 'Looking up token...';
+
+    try {
+      const response = await fetch(apiPath, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ wechat_id: wechatId, create_missing: true }),
+      });
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload && payload.error ? payload.error : `HTTP ${response.status}`);
+      }
+      renderResult(payload);
+      statusEl.textContent = payload.created ? 'Token created and stored.' : 'Token resolved from the registry.';
+    } catch (error) {
+      renderResult({ error: String(error) });
+      statusEl.textContent = 'Lookup failed.';
+    } finally {
+      submitButton.disabled = false;
+    }
+  });
+
+  copyButton.addEventListener('click', async () => {
+    if (!latestToken) return;
+    try {
+      await navigator.clipboard.writeText(latestToken);
+      statusEl.textContent = 'Token copied to clipboard.';
+    } catch (error) {
+      statusEl.textContent = `Copy failed: ${error}`;
+    }
+  });
+})();
+</script>
+        </body>
+        </html>

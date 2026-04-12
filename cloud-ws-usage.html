@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+        <html lang="zh-Hans">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <meta name="color-scheme" content="light" />
+          <title>Cloud WS Usage</title>
+          <style>
+            :root {
+              --bg: #f6f8fb;
+              --surface: #ffffff;
+              --surface-alt: #f8fafc;
+              --border: #d0d7de;
+              --text: #1f2328;
+              --muted: #57606a;
+              --accent: #0969da;
+              --accent-soft: #dbeafe;
+              --success: #1a7f37;
+              --warning: #9a6700;
+            }
+            * {
+              box-sizing: border-box;
+            }
+            html {
+              scroll-behavior: smooth;
+            }
+            body {
+              margin: 0;
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+              background: var(--bg);
+              color: var(--text);
+              line-height: 1.6;
+            }
+            a {
+              color: var(--accent);
+              text-decoration: none;
+            }
+            a:hover {
+              text-decoration: underline;
+            }
+            .page {
+              max-width: 1240px;
+              margin: 0 auto;
+              padding: 24px 18px 48px;
+            }
+            .site-header {
+              display: grid;
+              gap: 14px;
+              padding: 20px;
+              margin-bottom: 18px;
+              border: 1px solid var(--border);
+              border-radius: 8px;
+              background: var(--surface);
+            }
+            .eyebrow {
+              margin: 0;
+              color: var(--muted);
+              font-size: 0.82rem;
+              text-transform: uppercase;
+              letter-spacing: 0;
+            }
+            .site-header h1 {
+              margin: 0;
+              font-size: 1.65rem;
+              line-height: 1.2;
+            }
+            .site-header p {
+              margin: 0;
+              color: var(--muted);
+            }
+            .site-nav {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 10px;
+            }
+            .site-nav a {
+              display: inline-flex;
+              align-items: center;
+              min-height: 34px;
+              padding: 0 12px;
+              border: 1px solid var(--border);
+              border-radius: 8px;
+              background: var(--surface-alt);
+              color: var(--text);
+            }
+            .site-nav a:hover {
+              border-color: var(--accent);
+              text-decoration: none;
+            }
+            .lookup-panel {
+              margin: 18px 0 24px;
+              padding: 18px;
+              border: 1px solid var(--border);
+              border-radius: 8px;
+              background: var(--surface);
+            }
+            .panel-header {
+              display: flex;
+              flex-wrap: wrap;
+              justify-content: space-between;
+              gap: 12px;
+              margin-bottom: 14px;
+            }
+            .panel-header h2 {
+              margin: 4px 0 0;
+              font-size: 1.18rem;
+            }
+            .panel-note {
+              max-width: 600px;
+              margin: 0;
+              color: var(--muted);
+            }
+            .lookup-form {
+              display: grid;
+              grid-template-columns: minmax(0, 1fr) auto;
+              gap: 12px;
+              align-items: end;
+            }
+            .field {
+              display: grid;
+              gap: 6px;
+            }
+            .field span {
+              font-size: 0.88rem;
+              color: var(--muted);
+            }
+            .field input {
+              width: 100%;
+              min-width: 280px;
+              height: 40px;
+              padding: 0 12px;
+              border: 1px solid var(--border);
+              border-radius: 8px;
+              background: #fff;
+              color: var(--text);
+            }
+            .actions {
+              grid-auto-flow: column;
+              justify-content: start;
+              gap: 8px;
+            }
+            button {
+              height: 40px;
+              padding: 0 14px;
+              border: 1px solid var(--border);
+              border-radius: 8px;
+              background: var(--surface-alt);
+              color: var(--text);
+              cursor: pointer;
+            }
+            button:hover:not(:disabled) {
+              border-color: var(--accent);
+            }
+            button:disabled {
+              cursor: not-allowed;
+              opacity: 0.55;
+            }
+            .lookup-status {
+              margin: 10px 0 8px;
+              color: var(--muted);
+            }
+            .lookup-result {
+              margin: 0;
+              padding: 14px;
+              min-height: 120px;
+              border: 1px solid var(--border);
+              border-radius: 8px;
+              background: #0f172a;
+              color: #e2e8f0;
+              overflow-x: auto;
+              white-space: pre-wrap;
+              word-break: break-word;
+            }
+            .doc-shell {
+              padding: 20px;
+              border: 1px solid var(--border);
+              border-radius: 8px;
+              background: var(--surface);
+            }
+            .doc-shell h1,
+            .doc-shell h2,
+            .doc-shell h3,
+            .doc-shell h4 {
+              line-height: 1.25;
+            }
+            .doc-shell h1 {
+              margin-top: 0;
+            }
+            .doc-shell p {
+              margin: 0.6rem 0;
+            }
+            .doc-shell ul,
+            .doc-shell ol {
+              padding-left: 1.35rem;
+            }
+            .doc-shell code {
+              font-family: Consolas, 'SFMono-Regular', monospace;
+              font-size: 0.92em;
+            }
+            .doc-shell pre {
+              overflow-x: auto;
+              padding: 14px;
+              border-radius: 8px;
+              border: 1px solid var(--border);
+              background: #0f172a;
+              color: #e2e8f0;
+            }
+            .doc-shell pre code {
+              color: inherit;
+            }
+            .doc-shell table {
+              width: 100%;
+              border-collapse: collapse;
+              overflow: hidden;
+              border-radius: 8px;
+            }
+            .doc-shell th,
+            .doc-shell td {
+              padding: 8px 10px;
+              border: 1px solid var(--border);
+              text-align: left;
+              vertical-align: top;
+            }
+            .doc-shell th {
+              background: #f1f5f9;
+            }
+            .doc-shell blockquote {
+              margin: 1rem 0;
+              padding: 0.2rem 0 0.2rem 1rem;
+              border-left: 4px solid var(--accent-soft);
+              color: var(--muted);
+            }
+            .doc-shell hr {
+              border: 0;
+              border-top: 1px solid var(--border);
+              margin: 1.5rem 0;
+            }
+            .doc-shell img {
+              max-width: 100%;
+              height: auto;
+            }
+            .doc-shell .footnote {
+              color: var(--muted);
+              font-size: 0.9rem;
+            }
+            .doc-shell details {
+              margin: 1rem 0;
+            }
+            .doc-shell summary {
+              cursor: pointer;
+            }
+            @media (max-width: 760px) {
+              .page {
+                padding: 16px 12px 32px;
+              }
+              .lookup-form {
+                grid-template-columns: 1fr;
+              }
+              .actions {
+                grid-auto-flow: row;
+              }
+              .field input {
+                min-width: 0;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="page">
+            <header class="site-header">
+              <div>
+                <p class="eyebrow">Public Docs Site</p>
+                <h1>Cloud WS Usage</h1>
+                <p>Rendered from the repository markdown sources and published as a static GitHub Pages site.</p>
+              </div>
+              <nav class="site-nav" aria-label="Site navigation">
+  <a href="./">Proxy API</a>
+  <a href="./cloud-ws-usage.html">WS usage</a>
+  <a href="./reports/">Reports</a>
+</nav>
+            </header>
+
+            <article class="doc-shell">
+              <h1>Cloud WS Usage (Multi-User)</h1>
+<p>This guide explains how end users authenticate and connect to the WS stream.</p>
+<h2>1) Cloud proxy URL and ports</h2>
+<ul>
+<li>WS stream: <code>ws://35.88.155.223:8767/stream</code></li>
+<li>WS options stream: <code>ws://35.88.155.223:8767/stream/options</code></li>
+<li>WS test stream: <code>ws://35.88.155.223:8767/stream/test</code></li>
+<li>WS crypto stream: <code>ws://35.88.155.223:8767/stream/crypto</code></li>
+<li>WS boats stream: <code>ws://35.88.155.223:8767/stream/boats</code></li>
+<li>WS overnight stream: <code>ws://35.88.155.223:8767/stream/overnight</code></li>
+<li>Health check: <code>http://35.88.155.223:8768/health</code></li>
+</ul>
+<h2>2) URL format</h2>
+<p>WS URL:</p>
+<pre><code>ws://35.88.155.223:8767/stream
+</code></pre>
+<p>Options WS URL:</p>
+<pre><code>ws://35.88.155.223:8767/stream/options
+</code></pre>
+<p>Boats WS URL:</p>
+<pre><code>ws://35.88.155.223:8767/stream/boats
+</code></pre>
+<p>Overnight WS URL:</p>
+<pre><code>ws://35.88.155.223:8767/stream/overnight
+</code></pre>
+<h2>3) Client sign-in (WS auth)</h2>
+<p>Each new WS connection must authenticate first, then subscribe. Reconnects must re-auth. This applies to both equity and options streams.</p>
+<p>Auth payload format:</p>
+<pre><code class="language-json">{&quot;action&quot;: &quot;auth&quot;, &quot;token&quot;: &quot;your-token&quot;}
+</code></pre>
+<p>If auth succeeds, the server responds with:</p>
+<pre><code class="language-json">{&quot;T&quot;: &quot;success&quot;, &quot;msg&quot;: &quot;authenticated&quot;}
+</code></pre>
+<p>After auth, subscribe to symbols (example):</p>
+<pre><code class="language-json">{&quot;action&quot;: &quot;subscribe&quot;, &quot;quotes&quot;: [&quot;SPY&quot;], &quot;trades&quot;: [&quot;SPY&quot;]}
+</code></pre>
+<p>Options subscribe example (option symbols):</p>
+<pre><code class="language-json">{&quot;action&quot;: &quot;subscribe&quot;, &quot;quotes&quot;: [&quot;AAPL240621C00180000&quot;], &quot;trades&quot;: [&quot;AAPL240621C00180000&quot;]}
+</code></pre>
+<h2>4) Minimal auth flow (pseudocode)</h2>
+<pre><code>ws = connect(&quot;ws://35.88.155.223:8767/stream&quot;)
+ws.send({&quot;action&quot;:&quot;auth&quot;,&quot;token&quot;:&quot;YOUR_TOKEN&quot;})
+wait for {&quot;T&quot;:&quot;success&quot;,&quot;msg&quot;:&quot;authenticated&quot;}
+ws.send({&quot;action&quot;:&quot;subscribe&quot;,&quot;quotes&quot;:[&quot;SPY&quot;],&quot;trades&quot;:[&quot;SPY&quot;]})
+loop: read messages (quotes/trades)
+</code></pre>
+<p>Options stream is identical, just connect to <code>/stream/options</code> and subscribe with option symbols.
+<code>/stream/boats</code> and <code>/stream/overnight</code> use the same stock-style <code>trades</code> / <code>quotes</code> payloads.</p>
+<h2>5) Quick sign-in + feed check (recommended)</h2>
+<p>Use the helper script (it runs <strong>auth + feed check</strong> automatically):</p>
+<pre><code>python scripts/connect_cloud.py
+</code></pre>
+<p>It will prompt for:
+- Cloud stream URL
+- Proxy token</p>
+<p>It prints <code>Auth OK.</code> and then <code>Feed OK.</code> or a timeout notice if the market is closed.</p>
+<h2>6) Connect from your own app</h2>
+<p>Set these env vars for your client:</p>
+<pre><code>ALPACA_PROXY_URL=ws://35.88.155.223:8767/stream
+ALPACA_PROXY_TOKEN=test234
+</code></pre>
+<p>Options stream env example:</p>
+<pre><code>ALPACA_PROXY_URL=ws://35.88.155.223:8767/stream/options
+ALPACA_PROXY_TOKEN=test234
+</code></pre>
+<p>Note: End users only need the proxy token. They do <strong>not</strong> need Alpaca master keys.</p>
+<h2>7) Options snapshot by expiry (HTTP)</h2>
+<p>Endpoint:</p>
+<pre><code>POST http://35.88.155.223:8768/v1/options/snapshots/expiry
+</code></pre>
+<p>Body example:</p>
+<pre><code class="language-json">{&quot;underlying&quot;: &quot;AAPL&quot;, &quot;expiry&quot;: &quot;2024-06-21&quot;}
+</code></pre>
+<h2>8) REST discovery endpoints</h2>
+<p>Options contracts:</p>
+<pre><code>POST http://35.88.155.223:8768/v1/options/contracts
+</code></pre>
+<p>Options snapshots:</p>
+<pre><code>POST http://35.88.155.223:8768/v1/options/snapshots
+</code></pre>
+<p>Crypto latest order books:</p>
+<pre><code>POST http://35.88.155.223:8768/v1/crypto/us/latest/orderbooks
+</code></pre>
+<p>These endpoints accept the same proxy token pattern as the history routes.</p>
+<h2>9) Public docs site</h2>
+<p>The rendered proxy docs are published to the repository's GitHub Pages site and are intended to be public:</p>
+<ul>
+<li><code>github.io</code> docs site: repository Pages deployment</li>
+<li>lookup section: visible on the page for reference</li>
+<li>lookup action: only active in the private admin deployment that can reach <code>POST /v1/admin/token/lookup</code></li>
+</ul>
+<p>The public site is docs-only. It shows the WeChat token lookup section, but the action is disabled unless the browser can reach the private admin API.</p>
+            </article>
+          </div>
+
+        </body>
+        </html>
