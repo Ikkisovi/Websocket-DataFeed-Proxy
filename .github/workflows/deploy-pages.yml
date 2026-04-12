@@ -1,0 +1,40 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'scripts/build_proxy_docs_site.py'
+      - '.github/workflows/deploy-pages.yml'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install site builder dependency
+        run: python -m pip install --upgrade pip markdown
+      - name: Build docs site
+        run: python scripts/build_proxy_docs_site.py --project-root "${{ github.workspace }}" --output "${{ github.workspace }}/proxy/cloud/docs-site"
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: proxy/cloud/docs-site
+      - id: deployment
+        uses: actions/deploy-pages@v4
