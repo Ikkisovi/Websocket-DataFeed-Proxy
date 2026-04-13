@@ -348,6 +348,10 @@
 <li>鉴权回复: JSON 文本帧</li>
 <li>订阅确认: JSON 文本帧</li>
 <li>行情数据: JSON 文本帧</li>
+<li><code>/stream/news</code></li>
+<li>鉴权回复: JSON 文本帧</li>
+<li>订阅确认: JSON 文本帧</li>
+<li>行情数据: JSON 文本帧</li>
 </ul>
 <p>客户端需要同时具备 MsgPack 和 JSON 的解码能力。</p>
 <h2>3. WebSocket API</h2>
@@ -459,6 +463,113 @@
     &quot;invalid_trades&quot;: []
   }
 ]
+</code></pre>
+<h3>3.7 News 流 <code>GET ws://35.88.155.223:8767/stream/news</code></h3>
+<p>上游数据源: Alpaca <code>v1beta1/news</code></p>
+<p>支持的订阅键:</p>
+<ul>
+<li><code>news</code></li>
+</ul>
+<p>请求示例:</p>
+<pre><code class="language-json">{&quot;action&quot;:&quot;subscribe&quot;,&quot;news&quot;:[&quot;*&quot;]}
+</code></pre>
+<p>支持情况:</p>
+<ul>
+<li>支持新闻文章消息</li>
+<li><code>*</code> 表示全量订阅</li>
+<li>也接受具体 symbol 列表，代理会按文章里的 <code>symbols</code> 字段做本地分发</li>
+<li>鉴权、订阅确认和新闻数据都走 JSON 文本帧</li>
+</ul>
+<p>Channels</p>
+<p>News</p>
+<p>Schema</p>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>T</code></td>
+<td>string</td>
+<td>消息类型，新闻消息固定为 <code>n</code></td>
+</tr>
+<tr>
+<td><code>id</code></td>
+<td>int</td>
+<td>新闻文章 ID</td>
+</tr>
+<tr>
+<td><code>headline</code></td>
+<td>string</td>
+<td>标题</td>
+</tr>
+<tr>
+<td><code>summary</code></td>
+<td>string</td>
+<td>摘要，通常是正文的前一段</td>
+</tr>
+<tr>
+<td><code>author</code></td>
+<td>string</td>
+<td>原始作者</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>string</td>
+<td>创建时间，RFC-3339</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td>string</td>
+<td>更新时间，RFC-3339</td>
+</tr>
+<tr>
+<td><code>content</code></td>
+<td>string</td>
+<td>正文内容，可能包含 HTML</td>
+</tr>
+<tr>
+<td><code>url</code></td>
+<td>string</td>
+<td>文章链接</td>
+</tr>
+<tr>
+<td><code>symbols</code></td>
+<td>array<string></td>
+<td>相关或提及的 symbols</td>
+</tr>
+<tr>
+<td><code>source</code></td>
+<td>string</td>
+<td>新闻来源，例如 Benzinga</td>
+</tr>
+</tbody>
+</table>
+<p>订阅确认示例:</p>
+<pre><code class="language-json">[{
+  &quot;T&quot;: &quot;subscription&quot;,
+  &quot;news&quot;: [&quot;*&quot;],
+  &quot;invalid_news&quot;: []
+}]
+</code></pre>
+<p>新闻消息示例:</p>
+<pre><code class="language-json">{
+  &quot;T&quot;: &quot;n&quot;,
+  &quot;id&quot;: 24918784,
+  &quot;headline&quot;: &quot;Corsair Reports Purchase Of Majority Ownership In iDisplay, No Terms Disclosed&quot;,
+  &quot;summary&quot;: &quot;Corsair 发布了关于 iDisplay 的收购消息。&quot;,
+  &quot;author&quot;: &quot;Benzinga Newsdesk&quot;,
+  &quot;created_at&quot;: &quot;2022-01-05T22:00:37Z&quot;,
+  &quot;updated_at&quot;: &quot;2022-01-05T22:00:38Z&quot;,
+  &quot;url&quot;: &quot;https://www.benzinga.com/...&quot;,
+  &quot;content&quot;: &quot;&lt;p&gt;...&lt;/p&gt;&quot;,
+  &quot;symbols&quot;: [&quot;CRSR&quot;],
+  &quot;source&quot;: &quot;benzinga&quot;
+}
 </code></pre>
 <h2>4. HTTP API</h2>
 <h3>4.1 健康检查</h3>
@@ -649,6 +760,11 @@
 <td>未暴露</td>
 </tr>
 <tr>
+<td>News WS</td>
+<td>✅</td>
+<td><code>/stream/news</code></td>
+</tr>
+<tr>
 <td>Crypto WS orderbooks</td>
 <td>✅</td>
 <td><code>/stream/crypto</code></td>
@@ -710,14 +826,18 @@
 <li>验证 crypto 路由、orderbooks / trades 过滤和路径接受</li>
 <li><code>proxy/tests/test_cloud_proxy_http_usage.py</code></li>
 <li>验证新增 REST 发现接口与 usage logging</li>
+<li><code>proxy/tests/test_cloud_proxy_news.py</code></li>
+<li>验证 news 路由、鉴权、订阅 ACK 和本地分发</li>
 <li><code>tests/test_proxy_docs_site.py</code></li>
 <li>验证文档站点生成器会渲染公共站点首页、markdown 正文和 reports 目录</li>
 <li><code>proxy/tests/test_live_nvda_smoke.py</code></li>
 <li>验证 NVDA underlying quote 通路</li>
 <li>验证通过 REST 发现一个真实 NVDA 期权合约</li>
 <li>验证 NVDA 期权合约的 quote / trade 通路</li>
+<li><code>proxy/tests/test_live_news_smoke.py</code></li>
+<li>验证 <code>/stream/news</code> 的 auth / subscribe 以及新闻流连通性</li>
 <li><code>proxy/tests/test_live_all_feeds.py</code></li>
-<li>汇总股票、期权和 NVDA smoke 的 live 检查</li>
+<li>汇总股票、期权、news 和 NVDA smoke 的 live 检查</li>
 </ul>
 <p>最近一次 live 验证结果:</p>
 <ul>
@@ -732,19 +852,21 @@
 <li>股票 symbol 不接受 <code>.</code></li>
 <li>期权 symbol 只接受字母数字</li>
 <li><code>*</code> 通配符不支持，尤其是期权 quotes</li>
-<li>股票 / 期权 / boats / overnight 使用 MsgPack，crypto 使用 JSON</li>
+<li>股票 / 期权 / boats / overnight 使用 MsgPack，crypto / news 使用 JSON</li>
 <li><code>quotes</code> 这次是升级范围内的能力，已经在 stock / options / boats / overnight 的 live smoke 中验证</li>
 <li>目前没有 REST 形式的 quote 透传接口，quote 仍然通过 WS 获取</li>
+<li>News 流支持按 <code>symbols</code> 本地过滤，但公开文档里仍建议以 <code>*</code> 作为主用订阅方式</li>
 </ul>
 <h2>8. 参考文档</h2>
 <ul>
 <li><a href="./cloud-ws-usage.md">cloud-ws-usage.md</a></li>
-<li>Alpaca Market Data overview: https://docs.alpaca.markets/docs/about-market-data-api</li>
-<li>Alpaca real-time stock pricing data: https://docs.alpaca.markets/docs/real-time-stock-pricing-data</li>
-<li>Alpaca historical stock data: https://docs.alpaca.markets/v1.3/docs/historical-stock-data-1</li>
-<li>Alpaca real-time option data: https://docs.alpaca.markets/docs/real-time-option-data</li>
-<li>Alpaca historical option data: https://docs.alpaca.markets/docs/historical-option-data</li>
-<li>Alpaca options snapshots: https://docs.alpaca.markets/v1.3/reference/optionsnapshots</li>
+<li><a href="https://docs.alpaca.markets/docs/about-market-data-api">Alpaca Market Data overview</a></li>
+<li><a href="https://docs.alpaca.markets/docs/real-time-stock-pricing-data">Alpaca real-time stock pricing data</a></li>
+<li><a href="https://docs.alpaca.markets/v1.3/docs/historical-stock-data-1">Alpaca historical stock data</a></li>
+<li><a href="https://docs.alpaca.markets/docs/real-time-option-data">Alpaca real-time option data</a></li>
+<li><a href="https://docs.alpaca.markets/docs/historical-option-data">Alpaca historical option data</a></li>
+<li><a href="https://docs.alpaca.markets/v1.3/reference/optionsnapshots">Alpaca options snapshots</a></li>
+<li><a href="https://docs.alpaca.markets/docs/streaming-real-time-news">Alpaca real-time news data</a></li>
 </ul>
 <h2>9. Public Docs Site</h2>
 <p>This markdown is rendered into the repository's GitHub Pages site. The public site is docs-only.</p>

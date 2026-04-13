@@ -289,6 +289,7 @@
 <li>WS options stream: <code>ws://35.88.155.223:8767/stream/options</code></li>
 <li>WS test stream: <code>ws://35.88.155.223:8767/stream/test</code></li>
 <li>WS crypto stream: <code>ws://35.88.155.223:8767/stream/crypto</code></li>
+<li>WS news stream: <code>ws://35.88.155.223:8767/stream/news</code></li>
 <li>WS boats stream: <code>ws://35.88.155.223:8767/stream/boats</code></li>
 <li>WS overnight stream: <code>ws://35.88.155.223:8767/stream/overnight</code></li>
 <li>Health check: <code>http://35.88.155.223:8768/health</code></li>
@@ -299,6 +300,9 @@
 </code></pre>
 <p>Options WS URL:</p>
 <pre><code>ws://35.88.155.223:8767/stream/options
+</code></pre>
+<p>News WS URL:</p>
+<pre><code>ws://35.88.155.223:8767/stream/news
 </code></pre>
 <p>Boats WS URL:</p>
 <pre><code>ws://35.88.155.223:8767/stream/boats
@@ -320,6 +324,9 @@
 <p>Options subscribe example (option symbols):</p>
 <pre><code class="language-json">{&quot;action&quot;: &quot;subscribe&quot;, &quot;quotes&quot;: [&quot;AAPL240621C00180000&quot;], &quot;trades&quot;: [&quot;AAPL240621C00180000&quot;]}
 </code></pre>
+<p>News subscribe example:</p>
+<pre><code class="language-json">{&quot;action&quot;: &quot;subscribe&quot;, &quot;news&quot;: [&quot;*&quot;]}
+</code></pre>
 <h2>4) Minimal auth flow (pseudocode)</h2>
 <pre><code>ws = connect(&quot;ws://35.88.155.223:8767/stream&quot;)
 ws.send({&quot;action&quot;:&quot;auth&quot;,&quot;token&quot;:&quot;YOUR_TOKEN&quot;})
@@ -328,7 +335,8 @@ ws.send({&quot;action&quot;:&quot;subscribe&quot;,&quot;quotes&quot;:[&quot;SPY&
 loop: read messages (quotes/trades)
 </code></pre>
 <p>Options stream is identical, just connect to <code>/stream/options</code> and subscribe with option symbols.
-<code>/stream/boats</code> and <code>/stream/overnight</code> use the same stock-style <code>trades</code> / <code>quotes</code> payloads.</p>
+<code>/stream/boats</code> and <code>/stream/overnight</code> use the same stock-style <code>trades</code> / <code>quotes</code> payloads.
+<code>/stream/news</code> uses JSON text frames and the <code>news</code> channel.</p>
 <h2>5) Quick sign-in + feed check (recommended)</h2>
 <p>Use the helper script (it runs <strong>auth + feed check</strong> automatically):</p>
 <pre><code>python scripts/connect_cloud.py
@@ -344,6 +352,10 @@ ALPACA_PROXY_TOKEN=test234
 </code></pre>
 <p>Options stream env example:</p>
 <pre><code>ALPACA_PROXY_URL=ws://35.88.155.223:8767/stream/options
+ALPACA_PROXY_TOKEN=test234
+</code></pre>
+<p>News stream env example:</p>
+<pre><code>ALPACA_PROXY_URL=ws://35.88.155.223:8767/stream/news
 ALPACA_PROXY_TOKEN=test234
 </code></pre>
 <p>Note: End users only need the proxy token. They do <strong>not</strong> need Alpaca master keys.</p>
