@@ -53,6 +53,10 @@ HTTP 请求支持两种 token 传递方式:
   - 鉴权回复: JSON 文本帧
   - 订阅确认: JSON 文本帧
   - 行情数据: JSON 文本帧
+- `/stream/news`
+  - 鉴权回复: JSON 文本帧
+  - 订阅确认: JSON 文本帧
+  - 行情数据: JSON 文本帧
 
 客户端需要同时具备 MsgPack 和 JSON 的解码能力。
 
@@ -196,6 +200,75 @@ symbol 规范:
     "invalid_trades": []
   }
 ]
+```
+
+### 3.7 News 流 `GET ws://35.88.155.223:8767/stream/news`
+
+上游数据源: Alpaca `v1beta1/news`
+
+支持的订阅键:
+
+- `news`
+
+请求示例:
+
+```json
+{"action":"subscribe","news":["*"]}
+```
+
+支持情况:
+
+- 支持新闻文章消息
+- `*` 表示全量订阅
+- 也接受具体 symbol 列表，代理会按文章里的 `symbols` 字段做本地分发
+- 鉴权、订阅确认和新闻数据都走 JSON 文本帧
+
+Channels
+
+News
+
+Schema
+
+| 属性 | 类型 | 说明 |
+| --- | --- | --- |
+| `T` | string | 消息类型，新闻消息固定为 `n` |
+| `id` | int | 新闻文章 ID |
+| `headline` | string | 标题 |
+| `summary` | string | 摘要，通常是正文的前一段 |
+| `author` | string | 原始作者 |
+| `created_at` | string | 创建时间，RFC-3339 |
+| `updated_at` | string | 更新时间，RFC-3339 |
+| `content` | string | 正文内容，可能包含 HTML |
+| `url` | string | 文章链接 |
+| `symbols` | array<string> | 相关或提及的 symbols |
+| `source` | string | 新闻来源，例如 Benzinga |
+
+订阅确认示例:
+
+```json
+[{
+  "T": "subscription",
+  "news": ["*"],
+  "invalid_news": []
+}]
+```
+
+新闻消息示例:
+
+```json
+{
+  "T": "n",
+  "id": 24918784,
+  "headline": "Corsair Reports Purchase Of Majority Ownership In iDisplay, No Terms Disclosed",
+  "summary": "Corsair 发布了关于 iDisplay 的收购消息。",
+  "author": "Benzinga Newsdesk",
+  "created_at": "2022-01-05T22:00:37Z",
+  "updated_at": "2022-01-05T22:00:38Z",
+  "url": "https://www.benzinga.com/...",
+  "content": "<p>...</p>",
+  "symbols": ["CRSR"],
+  "source": "benzinga"
+}
 ```
 
 ## 4. HTTP API
@@ -380,6 +453,7 @@ OK
 | 期权 WS trades | ✅ | `/stream/options` |
 | 期权 WS quotes | ✅ | `/stream/options` |
 | 期权 WS bars | ❌ | 未暴露 |
+| News WS | ✅ | `/stream/news` |
 | Crypto WS orderbooks | ✅ | `/stream/crypto` |
 | Crypto WS trades | ✅ | `/stream/crypto` |
 | Crypto WS quotes | ❌ | 当前 proxy 不提供 |
@@ -402,14 +476,18 @@ OK
   - 验证 crypto 路由、orderbooks / trades 过滤和路径接受
 - `proxy/tests/test_cloud_proxy_http_usage.py`
   - 验证新增 REST 发现接口与 usage logging
+- `proxy/tests/test_cloud_proxy_news.py`
+  - 验证 news 路由、鉴权、订阅 ACK 和本地分发
 - `tests/test_proxy_docs_site.py`
   - 验证文档站点生成器会渲染公共站点首页、markdown 正文和 reports 目录
 - `proxy/tests/test_live_nvda_smoke.py`
   - 验证 NVDA underlying quote 通路
   - 验证通过 REST 发现一个真实 NVDA 期权合约
   - 验证 NVDA 期权合约的 quote / trade 通路
+- `proxy/tests/test_live_news_smoke.py`
+  - 验证 `/stream/news` 的 auth / subscribe 以及新闻流连通性
 - `proxy/tests/test_live_all_feeds.py`
-  - 汇总股票、期权和 NVDA smoke 的 live 检查
+  - 汇总股票、期权、news 和 NVDA smoke 的 live 检查
 
 最近一次 live 验证结果:
 
@@ -424,19 +502,21 @@ OK
 - 股票 symbol 不接受 `.`
 - 期权 symbol 只接受字母数字
 - `*` 通配符不支持，尤其是期权 quotes
-- 股票 / 期权 / boats / overnight 使用 MsgPack，crypto 使用 JSON
+- 股票 / 期权 / boats / overnight 使用 MsgPack，crypto / news 使用 JSON
 - `quotes` 这次是升级范围内的能力，已经在 stock / options / boats / overnight 的 live smoke 中验证
 - 目前没有 REST 形式的 quote 透传接口，quote 仍然通过 WS 获取
+- News 流支持按 `symbols` 本地过滤，但公开文档里仍建议以 `*` 作为主用订阅方式
 
 ## 8. 参考文档
 
 - [cloud-ws-usage.md](./cloud-ws-usage.md)
-- Alpaca Market Data overview: https://docs.alpaca.markets/docs/about-market-data-api
-- Alpaca real-time stock pricing data: https://docs.alpaca.markets/docs/real-time-stock-pricing-data
-- Alpaca historical stock data: https://docs.alpaca.markets/v1.3/docs/historical-stock-data-1
-- Alpaca real-time option data: https://docs.alpaca.markets/docs/real-time-option-data
-- Alpaca historical option data: https://docs.alpaca.markets/docs/historical-option-data
-- Alpaca options snapshots: https://docs.alpaca.markets/v1.3/reference/optionsnapshots
+- [Alpaca Market Data overview](https://docs.alpaca.markets/docs/about-market-data-api)
+- [Alpaca real-time stock pricing data](https://docs.alpaca.markets/docs/real-time-stock-pricing-data)
+- [Alpaca historical stock data](https://docs.alpaca.markets/v1.3/docs/historical-stock-data-1)
+- [Alpaca real-time option data](https://docs.alpaca.markets/docs/real-time-option-data)
+- [Alpaca historical option data](https://docs.alpaca.markets/docs/historical-option-data)
+- [Alpaca options snapshots](https://docs.alpaca.markets/v1.3/reference/optionsnapshots)
+- [Alpaca real-time news data](https://docs.alpaca.markets/docs/streaming-real-time-news)
 
 ## 9. Public Docs Site
 

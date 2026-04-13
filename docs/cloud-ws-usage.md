@@ -8,6 +8,7 @@ This guide explains how end users authenticate and connect to the WS stream.
 - WS options stream: `ws://35.88.155.223:8767/stream/options`
 - WS test stream: `ws://35.88.155.223:8767/stream/test`
 - WS crypto stream: `ws://35.88.155.223:8767/stream/crypto`
+- WS news stream: `ws://35.88.155.223:8767/stream/news`
 - WS boats stream: `ws://35.88.155.223:8767/stream/boats`
 - WS overnight stream: `ws://35.88.155.223:8767/stream/overnight`
 - Health check: `http://35.88.155.223:8768/health`
@@ -21,6 +22,10 @@ ws://35.88.155.223:8767/stream
 Options WS URL:
 ```
 ws://35.88.155.223:8767/stream/options
+```
+News WS URL:
+```
+ws://35.88.155.223:8767/stream/news
 ```
 Boats WS URL:
 ```
@@ -55,6 +60,11 @@ Options subscribe example (option symbols):
 {"action": "subscribe", "quotes": ["AAPL240621C00180000"], "trades": ["AAPL240621C00180000"]}
 ```
 
+News subscribe example:
+```json
+{"action": "subscribe", "news": ["*"]}
+```
+
 ## 4) Minimal auth flow (pseudocode)
 
 ```
@@ -67,6 +77,7 @@ loop: read messages (quotes/trades)
 
 Options stream is identical, just connect to `/stream/options` and subscribe with option symbols.
 `/stream/boats` and `/stream/overnight` use the same stock-style `trades` / `quotes` payloads.
+`/stream/news` uses JSON text frames and the `news` channel.
 
 ## 5) Quick sign-in + feed check (recommended)
 
@@ -92,6 +103,12 @@ ALPACA_PROXY_TOKEN=test234
 Options stream env example:
 ```
 ALPACA_PROXY_URL=ws://35.88.155.223:8767/stream/options
+ALPACA_PROXY_TOKEN=test234
+```
+
+News stream env example:
+```
+ALPACA_PROXY_URL=ws://35.88.155.223:8767/stream/news
 ALPACA_PROXY_TOKEN=test234
 ```
 
