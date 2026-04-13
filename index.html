@@ -608,7 +608,6 @@
   &quot;start&quot;: &quot;2026-03-24&quot;,
   &quot;end&quot;: &quot;2026-03-27&quot;,
   &quot;timeframe&quot;: &quot;1Min&quot;,
-  &quot;feed&quot;: &quot;opra&quot;,
   &quot;limit&quot;: 1000,
   &quot;max_pages&quot;: 1
 }
@@ -618,7 +617,7 @@
 <li>接受 <code>symbol</code> 或 <code>symbols</code></li>
 <li><code>symbol</code> 会自动提升为复数形态</li>
 <li>分页逻辑与股票历史 K 线一致</li>
-<li>当前部署默认期权数据源为 <code>opra</code></li>
+<li>上游历史 option bars 不使用 <code>feed</code> 参数；代理会忽略该字段，避免把它转发给 Alpaca</li>
 </ul>
 <h3>4.4 期权合约发现</h3>
 <p><code>POST http://35.88.155.223:8768/v1/options/contracts</code></p>
