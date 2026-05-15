@@ -1,156 +1,137 @@
-# Cloud WS Usage (Multi-User)
+# 连接示例 (Multi-Language)
 
-This guide explains how end users authenticate and connect to the WS stream.
+> 详细 API 参考见 [Proxy API 文档](./ec2_alpaca_proxy_api.md)
 
-## 1) Cloud proxy URL and ports
+## Python (股票实时流)
 
-- WS stream: `ws://35.88.155.223:8767/stream`
-- WS options stream: `ws://35.88.155.223:8767/stream/options`
-- WS test stream: `ws://35.88.155.223:8767/stream/test`
-- WS crypto stream: `ws://35.88.155.223:8767/stream/crypto`
-- WS news stream: `ws://35.88.155.223:8767/stream/news`
-- WS boats stream: `ws://35.88.155.223:8767/stream/boats`
-- WS overnight stream: `ws://35.88.155.223:8767/stream/overnight`
-- Health check: `http://35.88.155.223:8768/health`
+```python
+import asyncio
+import json
+import msgpack
+import websockets
 
-## 2) URL format
+TOKEN = "你的token"
+URL = "ws://35.88.155.223:8767/stream"
 
-WS URL:
-```
-ws://35.88.155.223:8767/stream
-```
-Options WS URL:
-```
-ws://35.88.155.223:8767/stream/options
-```
-News WS URL:
-```
-ws://35.88.155.223:8767/stream/news
-```
-Boats WS URL:
-```
-ws://35.88.155.223:8767/stream/boats
-```
-Overnight WS URL:
-```
-ws://35.88.155.223:8767/stream/overnight
+async def connect_stocks():
+    async with websockets.connect(URL) as ws:
+        # 1) 鉴权
+        await ws.send(json.dumps({"action": "auth", "token": TOKEN}))
+        auth = msgpack.unpackb(await ws.recv())  # 股票流是 MsgPack
+        print("Auth:", auth)
+
+        # 2) 订阅
+        await ws.send(json.dumps({"action": "subscribe", "trades": ["AAPL"], "quotes": ["AAPL"]}))
+        sub = msgpack.unpackb(await ws.recv())
+        print("Sub:", sub)
+
+        # 3) 收数据
+        while True:
+            msg = msgpack.unpackb(await ws.recv())
+            print(msg)
+
+asyncio.run(connect_stocks())
 ```
 
-## 3) Client sign-in (WS auth)
+## Python (历史 K 线)
 
-Each new WS connection must authenticate first, then subscribe. Reconnects must re-auth. This applies to both equity and options streams.
+```python
+import requests
 
-Auth payload format:
-```json
-{"action": "auth", "token": "your-token"}
+TOKEN = "你的token"
+resp = requests.post(
+    "http://35.88.155.223:8768/v1/history/bars",
+    json={"token": TOKEN, "symbol": "AAPL", "start": "2026-05-14", "end": "2026-05-15", "timeframe": "1Min", "limit": 10},
+)
+print(resp.json())
 ```
 
-If auth succeeds, the server responds with:
-```json
-{"T": "success", "msg": "authenticated"}
+## Node.js (股票实时流)
+
+```javascript
+const WebSocket = require('ws');
+const msgpack = require('@msgpack/msgpack');
+
+const TOKEN = '你的token';
+const ws = new WebSocket('ws://35.88.155.223:8767/stream');
+
+ws.on('open', () => {
+  ws.send(JSON.stringify({ action: 'auth', token: TOKEN }));
+});
+
+ws.on('message', (data) => {
+  if (data instanceof Buffer) {
+    console.log(msgpack.decode(data));  // 股票流是 MsgPack
+  } else {
+    console.log(JSON.parse(data));
+  }
+});
+
+// 鉴权成功后订阅
+// ws.send(JSON.stringify({ action: 'subscribe', trades: ['AAPL'], quotes: ['AAPL'] }));
 ```
 
-After auth, subscribe to symbols (example):
-```json
-{"action": "subscribe", "quotes": ["SPY"], "trades": ["SPY"]}
+## Node.js (News 实时流 — JSON 格式)
+
+```javascript
+const WebSocket = require('ws');
+
+const TOKEN = '你的token';
+const ws = new WebSocket('ws://35.88.155.223:8767/stream/news');
+
+ws.on('open', () => {
+  ws.send(JSON.stringify({ action: 'auth', token: TOKEN }));
+});
+
+ws.on('message', (data) => {
+  const msg = JSON.parse(data.toString());
+  if (msg.T === 'n') {
+    console.log(`📰 ${msg.headline} [${(msg.symbols||[]).join(',')}]`);
+  }
+});
 ```
 
-Options subscribe example (option symbols):
-```json
-{"action": "subscribe", "quotes": ["AAPL240621C00180000"], "trades": ["AAPL240621C00180000"]}
+## curl (健康检查 + 历史数据)
+
+```bash
+# 健康检查
+curl http://35.88.155.223:8768/health
+
+# 股票历史 K 线
+curl -X POST http://35.88.155.223:8768/v1/history/bars \
+  -H 'Content-Type: application/json' \
+  -d '{"token":"你的token","symbol":"AAPL","start":"2026-05-14","end":"2026-05-15","timeframe":"1Min","limit":5}'
+
+# 期权历史 K 线
+curl -X POST http://35.88.155.223:8768/v1/history/options/bars \
+  -H 'Content-Type: application/json' \
+  -d '{"token":"你的token","symbol":"SPY260522C00500000","start":"2026-05-14","end":"2026-05-15","timeframe":"1Min","limit":5}'
+
+# 期权合约查询
+curl -X POST http://35.88.155.223:8768/v1/options/contracts \
+  -H 'Content-Type: application/json' \
+  -d '{"token":"你的token","underlying_symbols":"AAPL","limit":5}'
 ```
 
-News subscribe example:
-```json
-{"action": "subscribe", "news": ["*"]}
+## Lean / QuantConnect 配置
+
+```bash
+# 环境变量方式
+export ALPACA_PROXY_URL=ws://35.88.155.223:8767/stream
+export ALPACA_PROXY_TOKEN=你的token
 ```
 
-## 4) Minimal auth flow (pseudocode)
+---
 
-```
-ws = connect("ws://35.88.155.223:8767/stream")
-ws.send({"action":"auth","token":"YOUR_TOKEN"})
-wait for {"T":"success","msg":"authenticated"}
-ws.send({"action":"subscribe","quotes":["SPY"],"trades":["SPY"]})
-loop: read messages (quotes/trades)
-```
+## 帧编码速查
 
-Options stream is identical, just connect to `/stream/options` and subscribe with option symbols.
-`/stream/boats` and `/stream/overnight` use the same stock-style `trades` / `quotes` payloads.
-`/stream/news` uses JSON text frames and the `news` channel.
-
-## 5) Quick sign-in + feed check (recommended)
-
-Use the helper script (it runs **auth + feed check** automatically):
-```
-python scripts/connect_cloud.py
-```
-
-It will prompt for:
-- Cloud stream URL
-- Proxy token
-
-It prints `Auth OK.` and then `Feed OK.` or a timeout notice if the market is closed.
-
-## 6) Connect from your own app
-
-Set these env vars for your client:
-```
-ALPACA_PROXY_URL=ws://35.88.155.223:8767/stream
-ALPACA_PROXY_TOKEN=test234
-```
-
-Options stream env example:
-```
-ALPACA_PROXY_URL=ws://35.88.155.223:8767/stream/options
-ALPACA_PROXY_TOKEN=test234
-```
-
-News stream env example:
-```
-ALPACA_PROXY_URL=ws://35.88.155.223:8767/stream/news
-ALPACA_PROXY_TOKEN=test234
-```
-
-Note: End users only need the proxy token. They do **not** need Alpaca master keys.
-
-## 7) Options snapshot by expiry (HTTP)
-
-Endpoint:
-```
-POST http://35.88.155.223:8768/v1/options/snapshots/expiry
-```
-
-Body example:
-```json
-{"underlying": "AAPL", "expiry": "2024-06-21"}
-```
-
-## 8) REST discovery endpoints
-
-Options contracts:
-```
-POST http://35.88.155.223:8768/v1/options/contracts
-```
-
-Options snapshots:
-```
-POST http://35.88.155.223:8768/v1/options/snapshots
-```
-
-Crypto latest order books:
-```
-POST http://35.88.155.223:8768/v1/crypto/us/latest/orderbooks
-```
-
-These endpoints accept the same proxy token pattern as the history routes.
-
-## 9) Public docs site
-
-The rendered proxy docs are published to the repository's GitHub Pages site and are intended to be public:
-
-- `github.io` docs site: repository Pages deployment
-- lookup section: visible on the page for reference
-- lookup action: only active in the private admin deployment that can reach `POST /v1/admin/token/lookup`
-
-The public site is docs-only. It shows the WeChat token lookup section, but the action is disabled unless the browser can reach the private admin API.
+| WS 流 | 编码 | Python 解码 | Node.js 解码 |
+| --- | --- | --- | --- |
+| `/stream` (股票) | MsgPack | `msgpack.unpackb(data)` | `msgpack.decode(data)` |
+| `/stream/options` | MsgPack | `msgpack.unpackb(data)` | `msgpack.decode(data)` |
+| `/stream/boats` | MsgPack | `msgpack.unpackb(data)` | `msgpack.decode(data)` |
+| `/stream/overnight` | MsgPack | `msgpack.unpackb(data)` | `msgpack.decode(data)` |
+| `/stream/test` | MsgPack | `msgpack.unpackb(data)` | `msgpack.decode(data)` |
+| `/stream/crypto` | JSON | `json.loads(data)` | `JSON.parse(data)` |
+| `/stream/news` | JSON | `json.loads(data)` | `JSON.parse(data)` |
+| 所有 HTTP 端点 | JSON | `resp.json()` | `JSON.parse(body)` |
