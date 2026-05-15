@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AlphaSAGE Report — 2026-03-04</title>
+<style>
+  :root {
+    --bg: #0d1117; --surface: #161b22; --border: #30363d;
+    --text: #e6edf3; --text-muted: #8b949e; --accent: #58a6ff;
+    --green: #3fb950; --red: #f85149; --yellow: #d29922;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', -apple-system, sans-serif;
+    background: var(--bg); color: var(--text);
+    max-width: 900px; margin: 0 auto; padding: 24px 20px;
+    line-height: 1.6;
+  }
+  h1 { color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 20px; font-size: 1.6em; }
+  h2 { color: var(--green); margin: 28px 0 12px; font-size: 1.25em; }
+  h3 { color: var(--yellow); margin: 20px 0 8px; }
+  p { margin: 8px 0; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+  ul { padding-left: 24px; margin: 8px 0; }
+  li { margin: 4px 0; }
+  strong { color: #f0f6fc; }
+  code.inline {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 2px 6px; border-radius: 4px; font-size: 0.9em; color: var(--accent);
+  }
+  pre {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px; overflow-x: auto;
+    margin: 12px 0; font-size: 0.85em;
+  }
+  pre code { color: var(--text); }
+  .table-wrap { overflow-x: auto; margin: 12px 0; }
+  table {
+    border-collapse: collapse; width: 100%;
+    background: var(--surface); border-radius: 8px; overflow: hidden;
+  }
+  th { background: #1c2128; color: var(--accent); text-align: left; padding: 10px 12px; font-size: 0.85em; white-space: nowrap; }
+  td { padding: 8px 12px; border-top: 1px solid var(--border); font-size: 0.85em; }
+  tr:hover td { background: #1c2128; }
+  details { margin: 16px 0; }
+  summary { cursor: pointer; color: var(--text-muted); font-size: 0.9em; }
+  .meta { color: var(--text-muted); font-size: 0.85em; margin-bottom: 20px; }
+  .nav { display: flex; gap: 16px; margin-bottom: 20px; font-size: 0.9em; }
+  .nav a { color: var(--accent); text-decoration: none; }
+  .nav a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="nav">
+  <a href="index.html">← All Reports</a>
+  <span style="color:var(--text-muted)">AlphaSAGE Daily Factor Report</span>
+</div>
+<div class="meta">Generated on 2026-03-05 13:48 · qwen3.5:397b-cloud via Ollama</div>
+<h1>Daily Factor Report -- 2026-03-04</h1>
+
+<p>Generated at 2026-03-04 23:39:38 by qwen3.5:397b-cloud via ollama</p>
+
+<hr>
+
+<p>The 2026-03-04 snapshot signals high regime risk. Uncertainty is elevated due to <code class="inline">legacy_schema</code> flags, specifically <code class="inline">objective_breakdown_missing</code>, obscuring optimization constraints.</p>
+
+<p><strong>Factor Regime & CMA Health</strong></p>
+<p>CMA weights are fully concentrated in four factors: <code class="inline">alpha_5</code> (0.328977), <code class="inline">alpha_1</code> (0.26402), <code class="inline">alpha_4</code> (0.225696), and <code class="inline">alpha_7</code> (0.181307). Critically, all active factors report Status <code class="inline">Degrading</code> with Note <code class="inline">interpretation_stale</code>. Predictive power is negative across the active book; <code class="inline">alpha_4</code> shows ICIR -0.253772 and <code class="inline">alpha_1</code> shows ICIR -0.239276. Conversely, inactive factors display robust health; <code class="inline">alpha_12</code> holds ICIR 0.35361 with Status <code class="inline">Healthy</code>, yet retains Weight 0.0. This divergence suggests the CMA allocation is lagging the current factor regime, maintaining exposure to decaying signals while ignoring positive ICIR opportunities.</p>
+
+<p><strong>Timing Risk & Fallback</strong></p>
+<p>Despite <code class="inline">rebalance_today=True</code>, Bucket Transitions show <code class="inline">top_to_bottom: (none)</code>. The model is not rotating out of degrading factors automatically. Market breadth confirms stress: advancers=16 vs decliners=52, with mean OHLCV return -0.02321. The timing overlay must override the CMA weights given the <code class="inline">interpretation_stale</code> flag across 100% of active weight. Fallback behavior should trigger reduced gross exposure until ICIR turns positive or weights shift to <code class="inline">Healthy</code> factors like <code class="inline">alpha_3</code> (ICIR 0.268789).</p>
+
+<p><strong>Stock-Level & Microstructure</strong></p>
+<p>Liquidity anomalies warrant caution. <code class="inline">BMY</code> exhibits an <code class="inline">Illiquidity spike</code> with amihud_range 0.12719 (TS_Z 4.1939). Large cap tech shows mixed signals; <code class="inline">AAPL</code> and <code class="inline">AMZN</code> both flag <code class="inline">Illiquidity spike</code> with amihud_range 0.001224 and 0.001491 respectively. Momentum divergences are extreme: <code class="inline">TSLA</code> signals <code class="inline">Momentum reversal</code> (drift_factor -1106389980.481897), aligning with the negative market mean, while <code class="inline">NVDA</code> shows <code class="inline">Momentum surge</code> (drift_factor 1684551817.105167). Given the factor degradation, stock-specific alpha is unreliable; liquidity risks in <code class="inline">BMY</code> suggest avoiding new positions there.</p>
+
+<p><strong>Actionable Steps</strong></p>
+<ul>
+<li>  Reduce gross exposure by 50% immediately due to 100% active weight in <code class="inline">Degrading</code> factors.</li>
+<li>  Halt new entries in <code class="inline">BMY</code>, <code class="inline">AAPL</code>, <code class="inline">AMZN</code> pending liquidity normalization (amihud_range TS_Z > 2.3).</li>
+<li>  Investigate CMA configuration causing 0.0 weight allocation to <code class="inline">Healthy</code> factors like <code class="inline">alpha_12</code>.</li>
+</ul>
+
+<hr>
+
+<details>
+<summary>Raw Context (click to expand)</summary>
+
+<pre><code class="language-json">
+{
+  "requested_date": "2026-03-04",
+  "report_date": "2026-03-04",
+  "data_as_of_date": "2026-03-04",
+  "strict_date": false,
+  "allow_stale_cache": true,
+  "max_date_lag_days": 5,
+  "requested_equals_data_date": true,
+  "cma_source": "exact",
+  "section_dates": {
+    "cma_daily": "2026-03-04"
+  },
+  "legacy_schema": {
+    "scores_missing": true,
+    "factor_context_missing": true,
+    "stock_alert_universe_missing": true,
+    "objective_breakdown_missing": true,
+    "objective_config_missing": true
+  },
+  "scored_universe_size": 0,
+  "stock_alerts": [],
+  "stock_alert_universe_size": 0,
+  "bucket_transitions": {
+    "top_to_bottom": [],
+    "bottom_to_top": []
+  },
+  "rebalance_today": true,
+  "score_mode": "full",
+  "factor_health": [
+    {
+      "factor": "alpha_5",
+      "weight": 0.328977,
+      "weight_pct": 32.9,
+      "effective_direction": 1,
+      "expr_hash": "",
+      "latest_ic": -0.229939,
+      "ic_mean_20d": -0.082623,
+      "ic_std_20d": 0.362212,
+      "icir_20d": -0.228108,
+      "ic_trend_slope": -0.067259,
+      "ic_trend": "-",
+      "sharpe_20d": 2.891476,
+      "fitness_20d": 7.943081,
+      "ls_cum_20d": 0.074865,
+      "contribution": 0.075042,
+      "status": "Degrading",
+      "interpretation": "Capital flow intensity from log-money relative spread structure.",
+      "direction_note": "Higher effective score implies stronger capital-flow support.",
+      "interpretation_stale": true,
+      "interpretation_warning": "expr_hash mismatch (expected=3e3f92d55847, got=)"
+    },
+    {
+      "factor": "alpha_1",
+      "weight": 0.26402,
+      "weight_pct": 26.4,
+      "effective_direction": 1,
+      "expr_hash": "",
+      "latest_ic": -0.131372,
+      "ic_mean_20d": -0.08561,
+      "ic_std_20d": 0.357787,
+      "icir_20d": -0.239276,
+      "ic_trend_slope": -0.090901,
+      "ic_trend": "-",
+      "sharpe_20d": 2.189927,
+      "fitness_20d": 4.950692,
+      "ls_cum_20d": 0.0507,
+      "contribution": 0.063174,
+      "status": "Degrading",
+      "interpretation": "Medium-horizon volume momentum percentile via rolling quantile.",
+      "direction_note": "Higher effective score implies improving volume trend persistence.",
+      "interpretation_stale": true,
+      "interpretation_warning": "expr_hash mismatch (expected=b8804399e2ec, got=)"
+    },
+    {
+      "factor": "alpha_4",
+      "weight": 0.225696,
+      "weight_pct": 22.57,
+      "effective_direction": 1,
+      "expr_hash": "",
+      "latest_ic": 0.009769,
+      "ic_mean_20d": -0.082511,
+      "ic_std_20d": 0.325139,
+      "icir_20d": -0.253772,
+      "ic_trend_slope": -6.1e-05,
+      "ic_trend": "=",
+      "sharpe_20d": 7.080769,
+      "fitness_20d": 26.994423,
+      "ls_cum_20d": 0.144187,
+      "contribution": 0.057275,
+      "status": "Degrading",
+      "interpretation": "Liquidity and FFT-ranked activity blend penalizing weak microstructure quality.",
+      "direction_note": "Higher effective score implies healthier liquidity-adjusted activity.",
+      "interpretation_stale": true,
+      "interpretation_warning": "expr_hash mismatch (expected=39139fe8f291, got=)"
+    },
+    {
+      "factor": "alpha_7",
+      "weight": 0.181307,
+      "weight_pct": 18.13,
+      "effective_direction": 1,
+      "expr_hash": "",
+      "latest_ic": 0.124722,
+      "ic_mean_20d": -0.079021,
+      "ic_std_20d": 0.349774,
+      "icir_20d": -0.22592,
+      "ic_trend_slope": 0.020577,
+      "ic_trend": "+",
+      "sharpe_20d": -1.87932,
+      "fitness_20d": -3.939789,
+      "ls_cum_20d": -0.0436,
+      "contribution": 0.040961,
+      "status": "Degrading",
+      "interpretation": "Rolling MAD of log-money to capture regime-dependent flow volatility.",
+      "direction_note": "Higher effective score implies favorable flow-volatility regime.",
+      "interpretation_stale": true,
+      "interpretation_warning": "expr_hash mismatch (expected=517d4b6e31c5, got=)"
+    },
+    {
+      "factor": "alpha_0",
+      "weight": 0.0,
+      "weight_pct": 0.0,
+      "effective_direction": 1,
+      "expr_hash": "",
+      "latest_ic": -0.167925,
+      "ic_mean_20d": -0.058695,
+      "ic_std_20d": 0.362555,
+      "icir_20d": -0.161892,
+      "ic_trend_slope": -0.047495,
+      "ic_trend": "-",
+      "sharpe_20d": 3.861476,
+      "fitness_20d": 11.196092,
+      "ls_cum_20d": 0.0834,
+      "contribution": 0.0,
+      "status": "Degrading",
+      "interpretation": "Volume dislocation factor comparing log-volume to a nonlinear baseline.",
+      "direction_note": "Higher effective score implies stronger accumulation/participation quality.",
+      "interpretation_stale": true,
+      "interpretation_warning": "expr_hash mismatch (expected=d6511af1f613, got=)"
+    },
+    {
+      "factor": "alpha_10",
+      "weight": 0.0,
+      "weight_pct": 0.0,
+      "effective_direction": 1,
+      "expr_hash": "",
+      "latest_ic": 0.06,
+      "ic_mean_20d": -0.104155,
+      "ic_std_20d": 0.430931,
+      "icir_20d": -0.241699,
+      "ic_trend_slope": 0.088504,
+      "ic_trend": "+",
+      "sharpe_20d": 0.352325,
+      "fitness_20d": 0.419686,
+      "ls_cum_20d": 0.014077,
+      "contribution": 0.0,
+      "status": "Degrading",
+      "interpretation": "Inverse low-quantile open-return effect targeting short-term oversold rebounds.",
+      "direction_note": "Higher effective score implies rebound-favorable short-term setup.",
+      "interpretation_stale": true,
+      "interpretation_warning": "expr_hash mismatch (expected=54462453f581, got=)"
+    },
+    {
+      "factor": "alpha_11",
+      "weight": 0.0,
+      "weight_pct": 0.0,
+      "effective_direction": 1,
+      "expr_hash": "",
+      "latest_ic": 0.078771,
+      "ic_mean_20d": -0.064108,
+      "ic_std_20d": 0.341743,
+      "icir_20d": -0.187591,
+      "ic_trend_slope": -0.010571,
+      "ic_trend": "-",
+      "sharpe_20d": -0.07777,
+      "fitness_20d": -0.029408,
+      "ls_cum_20d": -0.001419,
+      "contribution": 0.0,
+      "status": "Degrading",
+      "interpretation": "Time-series MAD of log-volume capturing abnormal participation dispersion.",
+      "direction_note": "Higher effective score implies favorable dispersion regime.",
+      "interpretation_stale": true,
+      "interpretation_warning": "expr_hash mismatch (expected=5ef699416b1e, got=)"
+    },
+    {
+      "factor": "alpha_12",
+      "weight": 0.0,
+      "weight_pct": 0.0,
+      "effective_direction": 1,
+      "expr_hash": "",
+      "latest_ic": 0.042984,
+      "ic_mean_20d": 0.111625,
+      "ic_std_20d": 0.315673,
+      "icir_20d": 0.35361,
+      "ic_trend_slope": 0.027873,
+      "ic_trend": "+",
+      "sharpe_20d": 0.605158,
+      "fitness_20d": 0.547384,
+      "ls_cum_20d": 0.008117,
+      "contribution": 0.0,
+      "status": "Healthy",
+      "interpretation": "OHLC gap relation adjusted by volume-chip support correlation.",
+      "direction_note": "Higher effective score implies supportive price-structure versus volume-chip behavior.",
+      "interpretation_stale": true,
+      "interpretation_warning": "expr_hash mismatch (expected=ab1728904fcf, got=)"
+    },
+    {
+      "factor": "alpha_2",
+      "weight": 0.0,
+      "weight_pct": 0.0,
+      "effective_direction": 1,
+      "expr_hash": "",
+      "latest_ic": 0.225158,
+      "ic_mean_20d": 0.056568,
+      "ic_std_20d": 0.375734,
+      "icir_20d": 0.150554,
+      "ic_trend_slope": 0.073335,
+      "ic_trend": "+",
+      "sharpe_20d": -1.738611,
+      "fitness_20d": -3.499266,
+      "ls_cum_20d": -0.040187,
+      "contribution": 0.0,
+      "status": "Degrading",
+      "interpretation": "Relative log-volume minus log-close pressure through quantile filtering.",
+      "direction_note": "Higher effective score implies stronger demand versus price level.",
+      "interpretation_stale": true,
+      "interpretation_warning": "expr_hash mismatch (expected=b232be3cd9d5, got=)"
+    },
+    {
+      "factor": "alpha_3",
+      "weight": 0.0,
+      "weight_pct": 0.0,
+      "effective_direction": 1,
+      "expr_hash": "",
+      "latest_ic": 0.076916,
+      "ic_mean_20d": 0.087676,
+      "ic_std_20d": 0.326189,
+      "icir_20d": 0.268789,
+      "ic_trend_slope": 0.02198,
+      "ic_trend": "+",
+      "sharpe_20d": 2.707838,
+      "fitness_20d": 6.078876,
+      "ls_cum_20d": 0.049997,
+      "contribution": 0.0,
+      "status": "Healthy",
+      "interpretation": "Inverse correlation of volume/open ratio with lows, emphasizing stress-reversal patterns.",
+      "direction_note": "Higher effective score implies better mean-reversion support after stress.",
+      "interpretation_stale": true,
+      "interpretation_warning": "expr_hash mismatch (expected=94bd1aea62d8, got=)"
+    },
+    {
+      "factor": "alpha_6",
+      "weight": 0.0,
+      "weight_pct": 0.0,
+      "effective_direction": 1,
+      "expr_hash": "",
+      "latest_ic": 0.210589,
+      "ic_mean_20d": 0.108488,
+      "ic_std_20d": 0.35019,
+      "icir_20d": 0.309797,
+      "ic_trend_slope": 0.071857,
+      "ic_trend": "+",
+      "sharpe_20d": 0.891935,
+      "fitness_20d": 1.236473,
+      "ls_cum_20d": 0.019065,
+      "contribution": 0.0,
+      "status": "Healthy",
+      "interpretation": "Price-location ratio between high and VWAP with rank normalization.",
+      "direction_note": "Higher effective score implies stronger close location quality.",
+      "interpretation_stale": true,
+      "interpretation_warning": "expr_hash mismatch (expected=29e9a456b3cc, got=)"
+    },
+    {
+      "factor": "alpha_8",
+      "weight": 0.0,
+      "weight_pct": 0.0,
+      "effective_direction": 1,
+      "expr_hash": "",
+      "latest_ic": -0.123263,
+      "ic_mean_20d": -0.081431,
+      "ic_std_20d": 0.333387,
+      "icir_20d": -0.244253,
+      "ic_trend_slope": -0.033574,
+      "ic_trend": "-",
+      "sharpe_20d": 6.214864,
+      "fitness_20d": 18.799232,
+      "ls_cum_20d": 0.090773,
+      "contribution": 0.0,
+      "status": "Degrading",
+      "interpretation": "Composite microstructure blend of Amihud, chip-vwap correlation, and gap geometry.",
+      "direction_note": "Higher effective score implies broad microstructure confirmation.",
+      "interpretation_stale": true,
+      "interpretation_warning": "expr_hash mismatch (expected=69e8bdec0f10, got=)"
+    },
+    {
+      "factor": "alpha_9",
+      "weight": 0.0,
+      "weight_pct": 0.0,
+      "effective_direction": 1,
+      "expr_hash": "",
+      "latest_ic": -0.091197,
+      "ic_mean_20d": -0.064291,
+      "ic_std_20d": 0.343664,
+      "icir_20d": -0.187074,
+      "ic_trend_slope": -0.002426,
+      "ic_trend": "=",
+      "sharpe_20d": 2.498532,
+      "fitness_20d": 5.952874,
+      "ls_cum_20d": 0.056315,
+      "contribution": 0.0,
+      "status": "Degrading",
+      "interpretation": "Nested nonlinear gap-geometry factor with quantile and transform interactions.",
+      "direction_note": "Higher effective score implies constructive price-path geometry.",
+      "interpretation_stale": true,
+      "interpretation_warning": "expr_hash mismatch (expected=188949ffc8be, got=)"
+    }
+  ],
+  "cma_breakdown": {
+    "legacy_schema": true,
+    "reason": "objective_breakdown_missing"
+  },
+  "microstructure_anomalies": [
+    {
+      "symbol": "BMY",
+      "feature": "amihud_range",
+      "value": 0.12719,
+      "ts_z": 4.1939,
+      "cs_z": -0.178,
+      "signal": "Illiquidity spike"
+    },
+    {
+      "symbol": "AAPL",
+      "feature": "amihud_range",
+      "value": 0.001224,
+      "ts_z": 3.8576,
+      "cs_z": -0.3065,
+      "signal": "Illiquidity spike"
+    },
+    {
+      "symbol": "AMZN",
+      "feature": "amihud_range",
+      "value": 0.001491,
+      "ts_z": 3.7756,
+      "cs_z": -0.3063,
+      "signal": "Illiquidity spike"
+    },
+    {
+      "symbol": "BMY",
+      "feature": "amihud_mean",
+      "value": 0.000966,
+      "ts_z": 2.8898,
+      "cs_z": -0.2384,
+      "signal": "Liquidity drop"
+    },
+    {
+      "symbol": "AAPL",
+      "feature": "amihud_mean",
+      "value": 4.7e-05,
+      "ts_z": 2.3716,
+      "cs_z": -0.25,
+      "signal": "Liquidity drop"
+    },
+    {
+      "symbol": "AMZN",
+      "feature": "amihud_mean",
+      "value": 4.7e-05,
+      "ts_z": 2.358,
+      "cs_z": -0.25,
+      "signal": "Liquidity drop"
+    },
+    {
+      "symbol": "AMD",
+      "feature": "amihud_range",
+      "value": 0.001747,
+      "ts_z": 2.3487,
+      "cs_z": -0.306,
+      "signal": "Illiquidity spike"
+    },
+    {
+      "symbol": "LLY",
+      "feature": "amihud_range",
+      "value": 0.011216,
+      "ts_z": 2.3465,
+      "cs_z": -0.2963,
+      "signal": "Illiquidity spike"
+    },
+    {
+      "symbol": "KGC",
+      "feature": "vol_fft",
+      "value": 0.209816,
+      "ts_z": -2.3423,
+      "cs_z": -1.9232,
+      "signal": "HF volume drop"
+    },
+    {
+      "symbol": "APP",
+      "feature": "vol_fft",
+      "value": 0.641985,
+      "ts_z": 2.2999,
+      "cs_z": 1.1523,
+      "signal": "HF volume spike"
+    },
+    {
+      "symbol": "TSLA",
+      "feature": "drift_factor",
+      "value": -1106389980.481897,
+      "ts_z": -0.641,
+      "cs_z": -3.0114,
+      "signal": "Momentum reversal"
+    },
+    {
+      "symbol": "ORGO",
+      "feature": "amihud_mean",
+      "value": 0.619787,
+      "ts_z": -0.5259,
+      "cs_z": 7.6125,
+      "signal": "Liquidity surge"
+    },
+    {
+      "symbol": "CAAP",
+      "feature": "amihud_mean",
+      "value": 0.207732,
+      "ts_z": -0.4737,
+      "cs_z": 2.3849,
+      "signal": "Liquidity surge"
+    },
+    {
+      "symbol": "NVDA",
+      "feature": "drift_factor",
+      "value": 1684551817.105167,
+      "ts_z": 0.4668,
+      "cs_z": 4.7969,
+      "signal": "Momentum surge"
+    },
+    {
+      "symbol": "ORGO",
+      "feature": "amihud_range",
+      "value": 5.320061,
+      "ts_z": -0.4096,
+      "cs_z": 5.1188,
+      "signal": "Illiquidity drop"
+    }
+  ],
+  "ohlcv_returns": {
+    "mean": -0.02321,
+    "std": 0.035933,
+    "best_5": {
+      "EOSE": 0.056946,
+      "SFM": 0.046627,
+      "RL": 0.017271,
+      "CRM": 0.016613,
+      "PYPL": 0.016383
+    },
+    "worst_5": {
+      "KGC": -0.084819,
+      "SNDK": -0.0875,
+      "SSRM": -0.095388,
+      "CDE": -0.109009,
+      "CRDO": -0.153752
+    },
+    "advancers": 16,
+    "decliners": 52
+  },
+  "cma_weights": {
+    "last_train_date": "2026-03-04",
+    "weights": {
+      "alpha_5": 0.328977,
+      "alpha_1": 0.26402,
+      "alpha_4": 0.225696,
+      "alpha_7": 0.181307,
+      "alpha_0": 0.0,
+      "alpha_2": 0.0,
+      "alpha_3": 0.0,
+      "alpha_6": 0.0,
+      "alpha_8": 0.0,
+      "alpha_9": 0.0,
+      "alpha_10": 0.0,
+      "alpha_11": 0.0,
+      "alpha_12": 0.0
+    }
+  },
+  "_model": "qwen3.5:397b-cloud",
+  "_backend": "ollama"
+}
+</code></pre>
+
+</details>
+
+</body>
+</html>
