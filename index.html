@@ -306,10 +306,11 @@
             <article class="doc-shell">
               <h1>Alpaca 行情代理 API</h1>
 <blockquote>
-<p>更新时间: 2026-05-15<br>
+<p>更新时间: 2026-05-17<br>
 代理地址: <code>35.88.155.223</code> | WS: <code>8767</code> | HTTP: <code>8768</code></p>
 </blockquote>
-<p>这个代理让你<strong>用一个 token 就能获取美股实时行情和历史数据</strong>，不需要自己持有 Alpaca API key。</p>
+<p>这个代理让你<strong>用一个 token 就能获取美股实时行情和历史数据</strong>，不需要自己持有 Alpaca API key 或 ThetaData 账号。</p>
+<p><strong>新增</strong>: 期权历史数据现已接入 <strong>ThetaData</strong> 作为 Primary Provider，Alpaca 作为 Fallback。新增 <code>/v1/options/open_interest</code> 和 <code>/v1/options/eod</code> 端点。</p>
 <hr>
 <h2>快速开始</h2>
 <h3>1. 拿到你的 token</h3>
@@ -525,7 +526,7 @@ ws.onmessage = (msg) =&gt; {
 </tr>
 </tbody>
 </table>
-<h3>期权历史 K 线</h3>
+<h3>期权历史 K 线 (双 Provider)</h3>
 <pre><code>POST /v1/history/options/bars
 </code></pre>
 <table>
@@ -566,7 +567,7 @@ ws.onmessage = (msg) =&gt; {
 <td><code>timeframe</code></td>
 <td>string</td>
 <td>❌</td>
-<td>默认 <code>1Min</code></td>
+<td>默认 <code>1Min</code>，支持 <code>1Min</code>/<code>5Min</code>/<code>15Min</code>/<code>30Min</code>/<code>1Hour</code>/<code>1Day</code></td>
 </tr>
 <tr>
 <td><code>limit</code></td>
@@ -583,6 +584,84 @@ ws.onmessage = (msg) =&gt; {
 </tbody>
 </table>
 <p>💡 也可以用 <code>symbol</code>（单数），会自动转成 <code>symbols</code>。</p>
+<p><strong>数据路由逻辑</strong>: 该端点优先尝试 <strong>ThetaData</strong> (gRPC) 获取期权分钟/日终 OHLC，如果 ThetaData 无数据或异常，自动 fallback 到 <strong>Alpaca</strong> REST API。你不需要关心底层 Provider，传同样的参数即可。</p>
+<hr>
+<h3>期权持仓量历史 (ThetaData)</h3>
+<pre><code>POST /v1/options/open_interest
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>token</code></td>
+<td>string</td>
+<td>✅</td>
+<td>代理 token</td>
+</tr>
+<tr>
+<td><code>symbol</code></td>
+<td>string</td>
+<td>✅</td>
+<td>标的股票代码，如 <code>AAPL</code></td>
+</tr>
+<tr>
+<td><code>start</code></td>
+<td>string</td>
+<td>✅</td>
+<td>开始日期 <code>YYYY-MM-DD</code></td>
+</tr>
+<tr>
+<td><code>end</code></td>
+<td>string</td>
+<td>✅</td>
+<td>结束日期 <code>YYYY-MM-DD</code></td>
+</tr>
+<tr>
+<td><code>expiration</code></td>
+<td>string</td>
+<td>❌</td>
+<td>到期日过滤，默认 <code>*</code> (全部)</td>
+</tr>
+<tr>
+<td><code>strike</code></td>
+<td>string</td>
+<td>❌</td>
+<td>行权价过滤，默认 <code>*</code> (全部)</td>
+</tr>
+<tr>
+<td><code>right</code></td>
+<td>string</td>
+<td>❌</td>
+<td><code>C</code>/<code>P</code>/<code>both</code>，默认 <code>both</code></td>
+</tr>
+<tr>
+<td><code>max_dte</code></td>
+<td>int</td>
+<td>❌</td>
+<td>最大到期天数</td>
+</tr>
+<tr>
+<td><code>strike_range</code></td>
+<td>int</td>
+<td>❌</td>
+<td>行权价范围</td>
+</tr>
+</tbody>
+</table>
+<p>返回每条记录的 <code>open_interest</code> 字段。</p>
+<hr>
+<h3>期权日终数据 (ThetaData)</h3>
+<pre><code>POST /v1/options/eod
+</code></pre>
+<p>参数与 <code>/v1/options/open_interest</code> 完全相同。</p>
+<p>返回字段包含: <code>open</code>, <code>high</code>, <code>low</code>, <code>close</code>, <code>volume</code>, <code>open_interest</code>, <code>bid</code>, <code>ask</code>, <code>bid_size</code>, <code>ask_size</code> 等日终快照。</p>
 <h3>期权合约查询</h3>
 <pre><code>POST /v1/options/contracts
 </code></pre>
@@ -671,6 +750,10 @@ ALPACA_PROXY_TOKEN=你的token
 </code></pre>
 <p><strong>Q: 历史数据走代理还是直连？</strong><br>
 默认直连 Alpaca REST。如果直连失败且设置了 <code>ALPACA_HISTORY_AUTO_FALLBACK=1</code>，会自动切到代理。</p>
+<p><strong>Q: 期权历史 K 线为什么有时候快有时候慢？</strong><br>
+<code>/v1/history/options/bars</code> 现在优先走 ThetaData (gRPC)，如果该期权在 ThetaData 中没有数据（如某些冷门合约），会自动 fallback 到 Alpaca REST。ThetaData 通常更快，fallback 会多一次网络往返。</p>
+<p><strong>Q: 我需要自己的 ThetaData 账号吗？</strong><br>
+不需要。ThetaData 账号由代理服务器端持有，你只需要代理 token 即可调用所有端点。</p>
 <p><strong>Q: 期权代码格式？</strong><br>
 标准 OCC 格式，如 <code>AAPL260522C00200000</code> = AAPL 2026-05-22 Call $200。</p>
 <p><strong>Q: 为什么我收到的数据是乱码？</strong><br>
@@ -684,11 +767,14 @@ ALPACA_PROXY_TOKEN=你的token
 <li>部署模式: Paper trading (<code>IS_LIVE=false</code>), Pro feed (<code>IS_PRO=true</code>)</li>
 <li>上游数据源:</li>
 <li>股票: Alpaca <code>v2/sip</code></li>
-<li>期权: Alpaca <code>v1beta1/opra</code></li>
+<li>期权实时流: Alpaca <code>v1beta1/opra</code></li>
+<li>期权历史 K 线: <strong>ThetaData</strong> (primary, gRPC) → Alpaca <code>v1beta1/options/bars</code> (fallback)</li>
+<li>期权 OI/EOD: <strong>ThetaData</strong> <code>option_history_open_interest</code> / <code>option_history_eod</code></li>
 <li>Crypto: Alpaca <code>v1beta3/crypto/us</code></li>
 <li>News: Alpaca <code>v1beta1/news</code></li>
 <li>Boats: Alpaca <code>v1beta1/boats</code></li>
 <li>Overnight: Alpaca <code>v1beta1/overnight</code></li>
+<li>ThetaData SDK: v1.0.4 (Python 3.12, gRPC 直连云端，无需本地 Terminal)</li>
 <li>Token 注册表: <code>/app/users.json</code>（file-backed，支持运行时增删）</li>
 <li>源代码: <a href="https://github.com/ikkisovi/Websocket-DataFeed-Proxy">github.com/ikkisovi/Websocket-DataFeed-Proxy</a></li>
 </ul>
