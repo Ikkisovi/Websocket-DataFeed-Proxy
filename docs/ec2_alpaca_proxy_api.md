@@ -1,6 +1,6 @@
 # Alpaca 行情代理 API
 
-> 更新时间: 2026-05-15  
+> 更新时间: 2026-05-18  
 > 代理地址: `35.88.155.223` | WS: `8767` | HTTP: `8768`
 
 这个代理让你**用一个 token 就能获取美股实时行情和历史数据**，不需要自己持有 Alpaca API key。
@@ -244,7 +244,7 @@ POST /v1/history/news
 }
 ```
 
-### 鉴权错误
+### 鉴权与限流错误
 
 | HTTP 状态 | 含义 |
 | --- | --- |
@@ -252,7 +252,113 @@ POST /v1/history/news
 | `400` | 请求参数有误 |
 | `401` | token 无效（不在注册表中） |
 | `403` | token 有效但没有该端点的权限 |
+| `429` | **速率超限**（REST 请求太频繁或 WS 订阅 symbol 数超限制） |
 | `500` | 代理内部错误（上游 Alpaca 故障等） |
+
+### 速率限制
+
+代理按用户角色执行限流，超限返回 `429`。
+
+| 角色 | REST 请求/分钟 | WS 最大 Symbol 数 | 说明 |
+| --- | --- | --- | --- |
+| `basic` / `basic_flow` | 10 | 10 | 基础套餐 |
+| `standard` / `standard_flow` | 60 | 100 | 标准套餐 |
+| `premium` / `advanced` | 300 | 500 | 高级/ premium |
+| `fallback` / `admin` | 1000 | 1000 | 管理员/回退（实际不限） |
+
+> WS symbol 限制：每次 `subscribe` 会累加 symbol 数量，超出限制时 subscribe 被拒绝。断开后自动释放。
+
+### 管理接口（Admin）
+
+以下接口任何已认证用户均可调用。非管理员只能查看**自己的**数据；管理员可查看全部。
+
+#### 查询审计日志
+
+```
+POST /v1/admin/audit
+```
+
+```bash
+curl -X POST 'http://35.88.155.223:8768/v1/admin/audit?limit=50' \
+  -H 'Content-Type: application/json' \
+  -d '{"token":"你的token"}'
+```
+
+**查询参数**（管理员可用）：
+- `?user_id=xxx` — 过滤指定用户
+- `?event=http_request|ws_request` — 过滤事件类型
+- `?mode=stock|options|crypto|news|...` — 过滤 WS 模式
+- `?limit=100` — 最多返回条数（默认 100，最大 1000）
+
+**返回示例**：
+```json
+{
+  "total": 42,
+  "returned": 5,
+  "events": [
+    {
+      "event": "http_request",
+      "endpoint": "/v1/history/news",
+      "user_id": "ikkipipi",
+      "status": 200,
+      "elapsed_ms": 202,
+      "symbols": "AAPL",
+      "limit": 2
+    },
+    {
+      "event": "ws_request",
+      "ws_event": "auth",
+      "user_id": "ikkipipi",
+      "mode": "news",
+      "timestamp": 1716040000.0,
+      "token_masked": "967d4072...bc5d"
+    }
+  ]
+}
+```
+
+#### 查询流量与系统统计
+
+```
+POST /v1/admin/stats
+```
+
+```bash
+curl -X POST http://35.88.155.223:8768/v1/admin/stats \
+  -H 'Content-Type: application/json' \
+  -d '{"token":"你的token"}'
+```
+
+**返回示例**（普通用户）：
+```json
+{
+  "user_id": "ikkipipi",
+  "user_stats": {
+    "rest_requests_1min": 3,
+    "ws_symbols": 15
+  },
+  "all_user_stats": null,
+  "system": null
+}
+```
+
+**返回示例**（管理员）：
+```json
+{
+  "user_id": "ikkipipi",
+  "user_stats": { "rest_requests_1min": 3, "ws_symbols": 15 },
+  "all_user_stats": {
+    "user1": { "rest_requests_1min": 0, "ws_symbols": 5 },
+    "ikkipipi": { "rest_requests_1min": 3, "ws_symbols": 15 }
+  },
+  "system": {
+    "memory_percent": 65.6,
+    "memory_available_mb": 310,
+    "load_1min": 0.02,
+    "cpu_percent": 1.5
+  }
+}
+```
 
 ---
 
