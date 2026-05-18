@@ -87,81 +87,25 @@
               border-color: var(--accent);
               text-decoration: none;
             }
-            .lookup-panel {
-              margin: 18px 0 24px;
-              padding: 18px;
+            .tier-table {
+              width: 100%;
+              border-collapse: collapse;
+              margin: 14px 0 18px;
+              font-size: 0.92rem;
+            }
+            .tier-table th, .tier-table td {
+              padding: 10px 12px;
               border: 1px solid var(--border);
-              border-radius: 8px;
+              text-align: left;
+            }
+            .tier-table th {
+              background: var(--surface-alt);
+              font-weight: 600;
+            }
+            .tier-table td {
               background: var(--surface);
             }
-            .panel-header {
-              display: flex;
-              flex-wrap: wrap;
-              justify-content: space-between;
-              gap: 12px;
-              margin-bottom: 14px;
-            }
-            .panel-header h2 {
-              margin: 4px 0 0;
-              font-size: 1.18rem;
-            }
-            .panel-note {
-              max-width: 600px;
-              margin: 0;
-              color: var(--muted);
-            }
-            .lookup-form {
-              display: grid;
-              grid-template-columns: minmax(0, 1fr) auto;
-              gap: 12px;
-              align-items: end;
-            }
-            .field {
-              display: grid;
-              gap: 6px;
-            }
-            .field span {
-              font-size: 0.88rem;
-              color: var(--muted);
-            }
-            .field input {
-              width: 100%;
-              min-width: 280px;
-              height: 40px;
-              padding: 0 12px;
-              border: 1px solid var(--border);
-              border-radius: 8px;
-              background: #fff;
-              color: var(--text);
-            }
-            .actions {
-              grid-auto-flow: column;
-              justify-content: start;
-              gap: 8px;
-            }
-            button {
-              height: 40px;
-              padding: 0 14px;
-              border: 1px solid var(--border);
-              border-radius: 8px;
-              background: var(--surface-alt);
-              color: var(--text);
-              cursor: pointer;
-            }
-            button:hover:not(:disabled) {
-              border-color: var(--accent);
-            }
-            button:disabled {
-              cursor: not-allowed;
-              opacity: 0.55;
-            }
-            .lookup-status {
-              margin: 10px 0 8px;
-              color: var(--muted);
-            }
-            .lookup-result {
-              margin: 0;
-              padding: 14px;
+            .doc-shell {
               min-height: 120px;
               border: 1px solid var(--border);
               border-radius: 8px;
@@ -279,42 +223,54 @@
   <a href="./reports/">Reports</a>
 </nav>
             </header>
-            <section class="lookup-panel" aria-labelledby="lookup-title">
-  <div class="panel-header">
-    <div>
-      <p class="eyebrow">Internal lookup</p>
-      <h2 id="lookup-title">WeChat token lookup</h2>
-    </div>
-    <p class="panel-note">
-      The lookup section is visible in the public docs site.
-      The button is active only in the private admin deployment that can reach the token lookup API.
-    </p>
-  </div>
-  <form id="lookup-form" class="lookup-form">
-    <label class="field">
-      <span>WeChat ID</span>
-      <input id="wechat-id" name="wechat_id" type="text" autocomplete="off" placeholder="wxid..." />
-    </label>
-    <div class="field actions">
-      <button id="lookup-submit" type="submit">Lookup / assign token</button>
-      <button id="lookup-copy" type="button" disabled>Copy token</button>
-    </div>
-  </form>
-  <p id="lookup-status" class="lookup-status">Enter a WeChat ID to resolve or create a token.</p>
-  <pre id="lookup-result" class="lookup-result" aria-live="polite">{}</pre>
-</section>
             <article class="doc-shell">
               <h1>Alpaca 行情代理 API</h1>
 <blockquote>
-<p>更新时间: 2026-05-17<br>
+<p>更新时间: 2026-05-18<br>
 代理地址: <code>35.88.155.223</code> | WS: <code>8767</code> | HTTP: <code>8768</code></p>
 </blockquote>
 <p>这个代理让你<strong>用一个 token 就能获取美股实时行情和历史数据</strong>，不需要自己持有 Alpaca API key 或 ThetaData 账号。</p>
 <p><strong>新增</strong>: 期权历史数据现已接入 <strong>ThetaData</strong> 作为 Primary Provider，Alpaca 作为 Fallback。新增 <code>/v1/options/open_interest</code> 和 <code>/v1/options/eod</code> 端点。</p>
+<h2>订阅套餐</h2>
+<table class="tier-table">
+<thead>
+<tr>
+<th>套餐</th>
+<th>价格</th>
+<th>REST 请求/分钟</th>
+<th>WS 最大 Symbol 数</th>
+<th>可用数据流</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Basic</strong></td>
+<td>20/月</td>
+<td>10</td>
+<td>10</td>
+<td>股票、新闻</td>
+</tr>
+<tr>
+<td><strong>Standard</strong></td>
+<td>50/月</td>
+<td>60</td>
+<td>100</td>
+<td>股票、期权、加密货币、新闻 + 历史数据</td>
+</tr>
+<tr>
+<td><strong>Premium</strong></td>
+<td>100/月</td>
+<td>300</td>
+<td>500</td>
+<td>全部实时流 + 全部历史数据</td>
+</tr>
+</tbody>
+</table>
+<p>注册地址: <a href="http://35.88.155.223:3000/register.html">http://35.88.155.223:3000/register.html</a> — 选择套餐并填写信息，等待管理员确认后即可自助生成 Token。</p>
 <hr>
 <h2>快速开始</h2>
 <h3>1. 拿到你的 token</h3>
-<p>联系管理员获取一个代理 token。不需要 Alpaca 账号。</p>
+<p>在 <a href="http://35.88.155.223:3000/register.html">http://35.88.155.223:3000/register.html</a> 注册并选择套餐，等待管理员确认后即可自助生成 Token。不需要 Alpaca 账号。</p>
 <h3>2. 测试连通性</h3>
 <pre><code class="language-bash">curl http://35.88.155.223:8768/health
 # → OK
@@ -781,73 +737,6 @@ ALPACA_PROXY_TOKEN=你的token
             </article>
           </div>
           <script>
-(() => {
-  const lookupForm = document.getElementById('lookup-form');
-  const statusEl = document.getElementById('lookup-status');
-  const resultEl = document.getElementById('lookup-result');
-  const submitButton = document.getElementById('lookup-submit');
-  const copyButton = document.getElementById('lookup-copy');
-  const wechatInput = document.getElementById('wechat-id');
-  const internalHosts = new Set(['35.88.155.223', 'localhost', '127.0.0.1']);
-  const lookupEnabled = internalHosts.has(window.location.hostname) || window.location.port === '8768';
-  const apiPath = '/v1/admin/token/lookup';
-  let latestToken = '';
-
-  function renderResult(payload) {
-    resultEl.textContent = JSON.stringify(payload, null, 2);
-    latestToken = payload && payload.token ? String(payload.token) : '';
-    copyButton.disabled = !latestToken;
-  }
-
-  if (!lookupEnabled) {
-    submitButton.disabled = true;
-    wechatInput.disabled = true;
-    statusEl.textContent = 'Token lookup is disabled on this host. Open the private admin deployment to resolve tokens.';
-    renderResult({ available: false, host: window.location.hostname });
-    return;
-  }
-
-  lookupForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const wechatId = wechatInput.value.trim();
-    if (!wechatId) {
-      statusEl.textContent = 'WeChat ID is required.';
-      return;
-    }
-
-    submitButton.disabled = true;
-    statusEl.textContent = 'Looking up token...';
-
-    try {
-      const response = await fetch(apiPath, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ wechat_id: wechatId, create_missing: true }),
-      });
-      const payload = await response.json();
-      if (!response.ok) {
-        throw new Error(payload && payload.error ? payload.error : `HTTP ${response.status}`);
-      }
-      renderResult(payload);
-      statusEl.textContent = payload.created ? 'Token created and stored.' : 'Token resolved from the registry.';
-    } catch (error) {
-      renderResult({ error: String(error) });
-      statusEl.textContent = 'Lookup failed.';
-    } finally {
-      submitButton.disabled = false;
-    }
-  });
-
-  copyButton.addEventListener('click', async () => {
-    if (!latestToken) return;
-    try {
-      await navigator.clipboard.writeText(latestToken);
-      statusEl.textContent = 'Token copied to clipboard.';
-    } catch (error) {
-      statusEl.textContent = `Copy failed: ${error}`;
-    }
-  });
-})();
-</script>
+  </script>
         </body>
         </html>
