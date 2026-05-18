@@ -18,8 +18,8 @@
               --success: #1a7f37;
               --warning: #9a6700;
             }
-            * {
-              box-sizing: border-box;
+            .doc-shell, .doc-shell p, .doc-shell h1, .doc-shell h2, .doc-shell h3, .doc-shell h4, .doc-shell li, .doc-shell td, .doc-shell th, .doc-shell strong, .doc-shell blockquote, .doc-shell .footnote {
+              color: var(--text) !important;
             }
             html {
               scroll-behavior: smooth;
@@ -28,7 +28,7 @@
               margin: 0;
               font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
               background: var(--bg);
-              color: var(--text);
+              color: var(--text) !important;
               line-height: 1.6;
             }
             a {
