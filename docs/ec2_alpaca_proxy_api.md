@@ -1,7 +1,7 @@
 # Alpaca 行情代理 API
 
 > 更新时间: 2026-05-18  
-> 代理地址: `35.88.155.223` | WS: `8767` | HTTP: `8768`
+> 代理地址: `52.37.182.24` | WS: `8767` | HTTP: `8768`
 
 这个代理让你**用一个 token 就能获取美股实时行情和历史数据**，不需要自己持有 Alpaca API key。
 
@@ -15,7 +15,7 @@
 | **Standard** | 50/月 | 60 | 100 | 股票、期权、加密货币、新闻 + 历史数据 |
 | **Premium** | 100/月 | 300 | 500 | 全部实时流 + 全部历史数据 |
 
-> 注册地址：`http://35.88.155.223:3000/register.html`
+> 注册地址：`http://52.37.182.24:3000/register.html`
 > 选择套餐并填写信息后，等待管理员确认即可自助生成 Token。
 
 ---
@@ -24,12 +24,12 @@
 
 ### 1. 拿到你的 token
 
-在 `http://35.88.155.223:3000/register.html` 注册并选择套餐，等待管理员确认后即可自助生成 Token。不需要 Alpaca 账号。
+在 `http://52.37.182.24:3000/register.html` 注册并选择套餐，等待管理员确认后即可自助生成 Token。不需要 Alpaca 账号。
 
 ### 2. 测试连通性
 
 ```bash
-curl http://35.88.155.223:8768/health
+curl http://52.37.182.24:8768/health
 # → OK
 ```
 
@@ -37,7 +37,7 @@ curl http://35.88.155.223:8768/health
 
 ```javascript
 // 以股票为例，期权/crypto/news 换对应的 URL 即可
-const ws = new WebSocket('ws://35.88.155.223:8767/stream');
+const ws = new WebSocket('ws://52.37.182.24:8767/stream');
 
 ws.onopen = () => {
   ws.send(JSON.stringify({ action: 'auth', token: '你的token' }));
@@ -55,7 +55,7 @@ ws.onmessage = (msg) => {
 ### 4. 拉取历史 K 线 (HTTP)
 
 ```bash
-curl -X POST http://35.88.155.223:8768/v1/history/bars \
+curl -X POST http://52.37.182.24:8768/v1/history/bars \
   -H 'Content-Type: application/json' \
   -d '{"token":"你的token","symbol":"AAPL","start":"2026-05-13","end":"2026-05-15","timeframe":"1Min","limit":10}'
 ```
@@ -84,13 +84,13 @@ curl -X POST http://35.88.155.223:8768/v1/history/bars \
 
 | 端点 | 订阅键 | 说明 |
 | --- | --- | --- |
-| `ws://35.88.155.223:8767/stream` | `trades`, `quotes` | 美股实时成交+报价 |
-| `ws://35.88.155.223:8767/stream/options` | `trades`, `quotes` | 期权实时成交+报价 |
-| `ws://35.88.155.223:8767/stream/crypto` | `trades`, `orderbooks` | 加密货币 |
-| `ws://35.88.155.223:8767/stream/news` | `news` | 新闻推送（支持 `*` 全量订阅） |
-| `ws://35.88.155.223:8767/stream/boats` | `trades`, `quotes` | 美股（boats feed） |
-| `ws://35.88.155.223:8767/stream/overnight` | `trades`, `quotes` | 美股盘后 |
-| `ws://35.88.155.223:8767/stream/test` | `trades`, `quotes` | 测试流 |
+| `ws://52.37.182.24:8767/stream` | `trades`, `quotes` | 美股实时成交+报价 |
+| `ws://52.37.182.24:8767/stream/options` | `trades`, `quotes` | 期权实时成交+报价 |
+| `ws://52.37.182.24:8767/stream/crypto` | `trades`, `orderbooks` | 加密货币 |
+| `ws://52.37.182.24:8767/stream/news` | `news` | 新闻推送（支持 `*` 全量订阅） |
+| `ws://52.37.182.24:8767/stream/boats` | `trades`, `quotes` | 美股（boats feed） |
+| `ws://52.37.182.24:8767/stream/overnight` | `trades`, `quotes` | 美股盘后 |
+| `ws://52.37.182.24:8767/stream/test` | `trades`, `quotes` | 测试流 |
 
 ### Auth 消息
 
@@ -142,7 +142,7 @@ curl -X POST http://35.88.155.223:8768/v1/history/bars \
 ### 健康检查
 
 ```
-GET http://35.88.155.223:8768/health
+GET http://52.37.182.24:8768/health
 → OK
 ```
 
@@ -292,7 +292,7 @@ POST /v1/admin/audit
 ```
 
 ```bash
-curl -X POST 'http://35.88.155.223:8768/v1/admin/audit?limit=50' \
+curl -X POST 'http://52.37.182.24:8768/v1/admin/audit?limit=50' \
   -H 'Content-Type: application/json' \
   -d '{"token":"你的token"}'
 ```
@@ -337,7 +337,7 @@ POST /v1/admin/stats
 ```
 
 ```bash
-curl -X POST http://35.88.155.223:8768/v1/admin/stats \
+curl -X POST http://52.37.182.24:8768/v1/admin/stats \
   -H 'Content-Type: application/json' \
   -d '{"token":"你的token"}'
 ```
@@ -379,7 +379,7 @@ curl -X POST http://35.88.155.223:8768/v1/admin/stats \
 
 **Q: Lean/QuantConnect 怎么配置？**
 ```
-ALPACA_PROXY_URL=ws://35.88.155.223:8767/stream
+ALPACA_PROXY_URL=ws://52.37.182.24:8767/stream
 ALPACA_PROXY_TOKEN=你的token
 ```
 

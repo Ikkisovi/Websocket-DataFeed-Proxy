@@ -11,7 +11,7 @@ import msgpack
 import websockets
 
 TOKEN = "你的token"
-URL = "ws://35.88.155.223:8767/stream"
+URL = "ws://52.37.182.24:8767/stream"
 
 async def connect_stocks():
     async with websockets.connect(URL) as ws:
@@ -40,7 +40,7 @@ import requests
 
 TOKEN = "你的token"
 resp = requests.post(
-    "http://35.88.155.223:8768/v1/history/bars",
+    "http://52.37.182.24:8768/v1/history/bars",
     json={"token": TOKEN, "symbol": "AAPL", "start": "2026-05-14", "end": "2026-05-15", "timeframe": "1Min", "limit": 10},
 )
 print(resp.json())
@@ -53,7 +53,7 @@ const WebSocket = require('ws');
 const msgpack = require('@msgpack/msgpack');
 
 const TOKEN = '你的token';
-const ws = new WebSocket('ws://35.88.155.223:8767/stream');
+const ws = new WebSocket('ws://52.37.182.24:8767/stream');
 
 ws.on('open', () => {
   ws.send(JSON.stringify({ action: 'auth', token: TOKEN }));
@@ -77,7 +77,7 @@ ws.on('message', (data) => {
 const WebSocket = require('ws');
 
 const TOKEN = '你的token';
-const ws = new WebSocket('ws://35.88.155.223:8767/stream/news');
+const ws = new WebSocket('ws://52.37.182.24:8767/stream/news');
 
 ws.on('open', () => {
   ws.send(JSON.stringify({ action: 'auth', token: TOKEN }));
@@ -95,20 +95,20 @@ ws.on('message', (data) => {
 
 ```bash
 # 健康检查
-curl http://35.88.155.223:8768/health
+curl http://52.37.182.24:8768/health
 
 # 股票历史 K 线
-curl -X POST http://35.88.155.223:8768/v1/history/bars \
+curl -X POST http://52.37.182.24:8768/v1/history/bars \
   -H 'Content-Type: application/json' \
   -d '{"token":"你的token","symbol":"AAPL","start":"2026-05-14","end":"2026-05-15","timeframe":"1Min","limit":5}'
 
 # 期权历史 K 线
-curl -X POST http://35.88.155.223:8768/v1/history/options/bars \
+curl -X POST http://52.37.182.24:8768/v1/history/options/bars \
   -H 'Content-Type: application/json' \
   -d '{"token":"你的token","symbol":"SPY260522C00500000","start":"2026-05-14","end":"2026-05-15","timeframe":"1Min","limit":5}'
 
 # 期权合约查询
-curl -X POST http://35.88.155.223:8768/v1/options/contracts \
+curl -X POST http://52.37.182.24:8768/v1/options/contracts \
   -H 'Content-Type: application/json' \
   -d '{"token":"你的token","underlying_symbols":"AAPL","limit":5}'
 ```
@@ -117,7 +117,7 @@ curl -X POST http://35.88.155.223:8768/v1/options/contracts \
 
 ```bash
 # 环境变量方式
-export ALPACA_PROXY_URL=ws://35.88.155.223:8767/stream
+export ALPACA_PROXY_URL=ws://52.37.182.24:8767/stream
 export ALPACA_PROXY_TOKEN=你的token
 ```
 
