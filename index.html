@@ -230,7 +230,7 @@
               <h1>Alpaca 行情代理 API</h1>
 <blockquote>
 <p>更新时间: 2026-05-18<br>
-代理地址: <code>35.95.134.76</code> | WS: <code>8767</code> | HTTP: <code>8768</code></p>
+代理地址: <code>52.37.182.24</code> | WS: <code>8767</code> | HTTP: <code>8768</code></p>
 </blockquote>
 <p>这个代理让你<strong>用一个 token 就能获取美股实时行情和历史数据</strong>，不需要自己持有 Alpaca API key 或 ThetaData 账号。</p>
 <p><strong>新增</strong>: 期权历史数据现已接入 <strong>ThetaData</strong> 作为 Primary Provider，Alpaca 作为 Fallback。新增 <code>/v1/options/open_interest</code> 和 <code>/v1/options/eod</code> 端点。</p>
@@ -269,18 +269,18 @@
 </tr>
 </tbody>
 </table>
-<p>注册地址: <a href="http://35.95.134.76:3000/register.html">http://35.95.134.76:3000/register.html</a> — 选择套餐并填写信息，等待管理员确认后即可自助生成 Token。</p>
+<p>注册地址: <a href="http://52.37.182.24:3000/register.html">http://52.37.182.24:3000/register.html</a> — 选择套餐并填写信息，等待管理员确认后即可自助生成 Token。</p>
 <hr>
 <h2>快速开始</h2>
 <h3>1. 拿到你的 token</h3>
-<p>在 <a href="http://35.95.134.76:3000/register.html">http://35.95.134.76:3000/register.html</a> 注册并选择套餐，等待管理员确认后即可自助生成 Token。不需要 Alpaca 账号。</p>
+<p>在 <a href="http://52.37.182.24:3000/register.html">http://52.37.182.24:3000/register.html</a> 注册并选择套餐，等待管理员确认后即可自助生成 Token。不需要 Alpaca 账号。</p>
 <h3>2. 测试连通性</h3>
-<pre><code class="language-bash">curl http://35.95.134.76:8768/health
+<pre><code class="language-bash">curl http://52.37.182.24:8768/health
 # → OK
 </code></pre>
 <h3>3. 连接实时行情 (WebSocket)</h3>
 <pre><code class="language-javascript">// 以股票为例，期权/crypto/news 换对应的 URL 即可
-const ws = new WebSocket('ws://35.95.134.76:8767/stream');
+const ws = new WebSocket('ws://52.37.182.24:8767/stream');
 
 ws.onopen = () =&gt; {
   ws.send(JSON.stringify({ action: 'auth', token: '你的token' }));
@@ -295,7 +295,7 @@ ws.onmessage = (msg) =&gt; {
 };
 </code></pre>
 <h3>4. 拉取历史 K 线 (HTTP)</h3>
-<pre><code class="language-bash">curl -X POST http://35.95.134.76:8768/v1/history/bars \
+<pre><code class="language-bash">curl -X POST http://52.37.182.24:8768/v1/history/bars \
   -H 'Content-Type: application/json' \
   -d '{&quot;token&quot;:&quot;你的token&quot;,&quot;symbol&quot;:&quot;AAPL&quot;,&quot;start&quot;:&quot;2026-05-13&quot;,&quot;end&quot;:&quot;2026-05-15&quot;,&quot;timeframe&quot;:&quot;1Min&quot;,&quot;limit&quot;:10}'
 </code></pre>
@@ -353,37 +353,37 @@ ws.onmessage = (msg) =&gt; {
 </thead>
 <tbody>
 <tr>
-<td><code>ws://35.95.134.76:8767/stream</code></td>
+<td><code>ws://52.37.182.24:8767/stream</code></td>
 <td><code>trades</code>, <code>quotes</code></td>
 <td>美股实时成交+报价</td>
 </tr>
 <tr>
-<td><code>ws://35.95.134.76:8767/stream/options</code></td>
+<td><code>ws://52.37.182.24:8767/stream/options</code></td>
 <td><code>trades</code>, <code>quotes</code></td>
 <td>期权实时成交+报价</td>
 </tr>
 <tr>
-<td><code>ws://35.95.134.76:8767/stream/crypto</code></td>
+<td><code>ws://52.37.182.24:8767/stream/crypto</code></td>
 <td><code>trades</code>, <code>orderbooks</code></td>
 <td>加密货币</td>
 </tr>
 <tr>
-<td><code>ws://35.95.134.76:8767/stream/news</code></td>
+<td><code>ws://52.37.182.24:8767/stream/news</code></td>
 <td><code>news</code></td>
 <td>新闻推送（支持 <code>*</code> 全量订阅）</td>
 </tr>
 <tr>
-<td><code>ws://35.95.134.76:8767/stream/boats</code></td>
+<td><code>ws://52.37.182.24:8767/stream/boats</code></td>
 <td><code>trades</code>, <code>quotes</code></td>
 <td>美股（boats feed）</td>
 </tr>
 <tr>
-<td><code>ws://35.95.134.76:8767/stream/overnight</code></td>
+<td><code>ws://52.37.182.24:8767/stream/overnight</code></td>
 <td><code>trades</code>, <code>quotes</code></td>
 <td>美股盘后</td>
 </tr>
 <tr>
-<td><code>ws://35.95.134.76:8767/stream/test</code></td>
+<td><code>ws://52.37.182.24:8767/stream/test</code></td>
 <td><code>trades</code>, <code>quotes</code></td>
 <td>测试流</td>
 </tr>
@@ -419,7 +419,7 @@ ws.onmessage = (msg) =&gt; {
 </code></pre>
 <p>也可以传 HTTP header: <code>Authorization: Bearer 你的token</code></p>
 <h3>健康检查</h3>
-<pre><code>GET http://35.95.134.76:8768/health
+<pre><code>GET http://52.37.182.24:8768/health
 → OK
 </code></pre>
 <h3>股票历史 K 线</h3>
@@ -704,7 +704,7 @@ ws.onmessage = (msg) =&gt; {
 <hr>
 <h2>常见问题</h2>
 <p><strong>Q: Lean/QuantConnect 怎么配置？</strong></p>
-<pre><code>ALPACA_PROXY_URL=ws://35.95.134.76:8767/stream
+<pre><code>ALPACA_PROXY_URL=ws://52.37.182.24:8767/stream
 ALPACA_PROXY_TOKEN=你的token
 </code></pre>
 <p><strong>Q: 历史数据走代理还是直连？</strong><br>

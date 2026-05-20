@@ -227,7 +227,7 @@ import msgpack
 import websockets
 
 TOKEN = &quot;你的token&quot;
-URL = &quot;ws://35.95.134.76:8767/stream&quot;
+URL = &quot;ws://52.37.182.24:8767/stream&quot;
 
 async def connect_stocks():
     async with websockets.connect(URL) as ws:
@@ -253,7 +253,7 @@ asyncio.run(connect_stocks())
 
 TOKEN = &quot;你的token&quot;
 resp = requests.post(
-    &quot;http://35.95.134.76:8768/v1/history/bars&quot;,
+    &quot;http://52.37.182.24:8768/v1/history/bars&quot;,
     json={&quot;token&quot;: TOKEN, &quot;symbol&quot;: &quot;AAPL&quot;, &quot;start&quot;: &quot;2026-05-14&quot;, &quot;end&quot;: &quot;2026-05-15&quot;, &quot;timeframe&quot;: &quot;1Min&quot;, &quot;limit&quot;: 10},
 )
 print(resp.json())
@@ -263,7 +263,7 @@ print(resp.json())
 const msgpack = require('@msgpack/msgpack');
 
 const TOKEN = '你的token';
-const ws = new WebSocket('ws://35.95.134.76:8767/stream');
+const ws = new WebSocket('ws://52.37.182.24:8767/stream');
 
 ws.on('open', () =&gt; {
   ws.send(JSON.stringify({ action: 'auth', token: TOKEN }));
@@ -284,7 +284,7 @@ ws.on('message', (data) =&gt; {
 <pre><code class="language-javascript">const WebSocket = require('ws');
 
 const TOKEN = '你的token';
-const ws = new WebSocket('ws://35.95.134.76:8767/stream/news');
+const ws = new WebSocket('ws://52.37.182.24:8767/stream/news');
 
 ws.on('open', () =&gt; {
   ws.send(JSON.stringify({ action: 'auth', token: TOKEN }));
@@ -299,36 +299,36 @@ ws.on('message', (data) =&gt; {
 </code></pre>
 <h2>curl (健康检查 + 历史数据)</h2>
 <pre><code class="language-bash"># 健康检查
-curl http://35.95.134.76:8768/health
+curl http://52.37.182.24:8768/health
 
 # 股票历史 K 线
-curl -X POST http://35.95.134.76:8768/v1/history/bars \
+curl -X POST http://52.37.182.24:8768/v1/history/bars \
   -H 'Content-Type: application/json' \
   -d '{&quot;token&quot;:&quot;你的token&quot;,&quot;symbol&quot;:&quot;AAPL&quot;,&quot;start&quot;:&quot;2026-05-14&quot;,&quot;end&quot;:&quot;2026-05-15&quot;,&quot;timeframe&quot;:&quot;1Min&quot;,&quot;limit&quot;:5}'
 
 # 期权历史 K 线 (双 Provider: ThetaData → Alpaca fallback)
-curl -X POST http://35.95.134.76:8768/v1/history/options/bars \
+curl -X POST http://52.37.182.24:8768/v1/history/options/bars \
   -H 'Content-Type: application/json' \
   -d '{&quot;token&quot;:&quot;你的token&quot;,&quot;symbol&quot;:&quot;SPY260522C00500000&quot;,&quot;start&quot;:&quot;2026-05-14&quot;,&quot;end&quot;:&quot;2026-05-15&quot;,&quot;timeframe&quot;:&quot;1Min&quot;,&quot;limit&quot;:5}'
 
 # 期权持仓量历史 (ThetaData)
-curl -X POST http://35.95.134.76:8768/v1/options/open_interest \
+curl -X POST http://52.37.182.24:8768/v1/options/open_interest \
   -H 'Content-Type: application/json' \
   -d '{&quot;token&quot;:&quot;你的token&quot;,&quot;symbol&quot;:&quot;AAPL&quot;,&quot;start&quot;:&quot;2026-05-01&quot;,&quot;end&quot;:&quot;2026-05-15&quot;}'
 
 # 期权日终数据 (ThetaData)
-curl -X POST http://35.95.134.76:8768/v1/options/eod \
+curl -X POST http://52.37.182.24:8768/v1/options/eod \
   -H 'Content-Type: application/json' \
   -d '{&quot;token&quot;:&quot;你的token&quot;,&quot;symbol&quot;:&quot;AAPL&quot;,&quot;start&quot;:&quot;2026-05-01&quot;,&quot;end&quot;:&quot;2026-05-15&quot;}'
 
 # 期权合约查询
-curl -X POST http://35.95.134.76:8768/v1/options/contracts \
+curl -X POST http://52.37.182.24:8768/v1/options/contracts \
   -H 'Content-Type: application/json' \
   -d '{&quot;token&quot;:&quot;你的token&quot;,&quot;underlying_symbols&quot;:&quot;AAPL&quot;,&quot;limit&quot;:5}'
 </code></pre>
 <h2>Lean / QuantConnect 配置</h2>
 <pre><code class="language-bash"># 环境变量方式
-export ALPACA_PROXY_URL=ws://35.95.134.76:8767/stream
+export ALPACA_PROXY_URL=ws://52.37.182.24:8767/stream
 export ALPACA_PROXY_TOKEN=你的token
 </code></pre>
 <hr>
@@ -397,7 +397,7 @@ export ALPACA_PROXY_TOKEN=你的token
 <pre><code class="language-python">import requests
 
 TOKEN = &quot;你的token&quot;
-BASE = &quot;http://35.95.134.76:8768&quot;
+BASE = &quot;http://52.37.182.24:8768&quot;
 
 # 期权历史 K 线 (自动路由 ThetaData → Alpaca fallback)
 resp = requests.post(
